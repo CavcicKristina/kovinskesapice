@@ -1,0 +1,46 @@
+# Permanent URL redirect 
+
+ErrorDocument 404 http://kovinskesapice/404/
+
+# PREVENT ACCESS TO LOG
+<FilesMatch "\.(list|log|hid)$">
+	order deny,allow
+	deny from all
+</FilesMatch>
+
+# PREVENT ACCESS TO CONFIG
+<Files inc/config.php>
+	order allow,deny
+	deny from all
+</Files>
+
+# PREVENT ACCESS TO FOLDER INCLUDE
+<Files inc/*>
+    order allow,deny
+	deny from all
+</Files>
+
+# BEGIN GZIP
+	<ifmodule mod_deflate.c>
+	AddOutputFilterByType DEFLATE text/text text/html text/plain text/xml text/css application/x-javascript application/javascript
+#	AddOutputFilterByType DEFLATE text/text text/html text/plain text/css application/x-javascript application/javascript
+	</ifmodule>
+# END GZIP
+
+# REWRITES
+<IfModule mod_rewrite.c>
+
+	Options +FollowSymlinks
+	RewriteEngine On
+	RewriteBase /
+
+	RewriteCond %{REQUEST_URI} ^/404/$
+	RewriteRule ^(.*)$ /404/404.php [L]
+
+	# normal redirect
+	RewriteCond %{REQUEST_FILENAME} !-f
+	RewriteCond %{REQUEST_FILENAME} !-d
+	RewriteCond %{REQUEST_URI} !\.(js|css|gif|jpg|jpeg|png|ico|html|htm|pdf)$
+	RewriteRule ^(.*)$ index.php [L]
+
+</IfModule> 

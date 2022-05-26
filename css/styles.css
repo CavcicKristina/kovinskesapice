@@ -1,0 +1,170 @@
+*{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: 'Open Sans', sans-serif;
+    font-family: 'Poppins', sans-serif;
+}
+
+h4{font-size: 20px;font-weight: bold;text-align: center;}
+h4::after{display:block;content:'';width: 60px;height: 3px;background-color: #222;position: absolute;right: 50%;left: calc(50% - 30px);margin-top: 10px;}
+.paragraf{font-size: 18px;font-weight: 300;}
+
+/* --- HEADER --- */
+.mainHeader{width: 100%;height: 700px;background-image: linear-gradient(90deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.4) 100%), url('../images/pexels-rabbit-mr-10633353.jpg');background-repeat: no-repeat;background-size: cover;z-index: 0;background-position: 0% 20%;position: relative;}
+
+.mainMenuNav{margin-top:30px;display: flex;flex-direction: row;justify-content: space-between;align-items: flex-start;}
+
+.mainMenuNav .logo img{width: 400px;}
+
+.mainMenu{list-style-type: none;display: flex;flex-direction: row;flex-wrap: wrap;}
+.mainMenu li{margin-left: 25px;}
+.mainMenu li a{color: rgb(247, 247, 247);font-size: 18px;}
+.mainMenu li a:hover{color: #ff5e00;text-decoration: underline;transition: 0.3s;}
+
+@keyframes headerCardAppear {
+    0% {
+        transform: translateY(100%);
+        opacity: 0;
+      }
+      100% {
+        transform: translateY(0);
+        opacity: 1;
+      }
+}
+.headerCard{text-align: center;display: flex;flex-direction: column;align-items: center;margin-bottom: 50px;animation: 1s ease-out 0s 1 headerCardAppear;}
+.headerCard h4,.headerCard p{color: rgb(247, 247, 247);}
+.headerCard h4::after{display: none;}
+.headerCard a{color: white;background-color: #FFC700;border-radius: 50px;padding: 10px 20px;}
+.headerCard a:hover{transition: 0.3s;background-color: #ff5e00;text-decoration: underline;}
+
+.burger{display: none;cursor: pointer;z-index: 4;}
+.burger div{width:25px;height: 3px;background-color: white;margin: 5px;}
+
+/* --- FOOTER --- */
+footer{background-color: #222;color: rgb(247, 247, 247);display: flex;flex-direction: row;flex-wrap: wrap;padding: 50px 110px;align-items: baseline;}
+footer p{font-size: 16px;font-weight: 300;}
+footer img{width: 100%;}
+
+/* --- O NAMA --- */
+.aboutus-upper, .aboutus-lower{margin: 80px 0px;}
+.aboutus-upper .paragraf{margin: 40px 0px;text-align: center;}
+.aboutus-lower .paragraf{margin: 40px 0;}
+.aboutus-lower img{float: left;width: 40%;margin-top: 40px;margin-right: 10px;}
+.aboutus-upper img{width: 100%;}
+
+/* --- DONACIJE --- */
+.donation{margin: 80px 0px 100px;}
+.donation .paragraf{margin: 40px 0px;text-align: center;}
+.donation-img, .donation-link{display: flex;justify-content: center;align-items: center;}
+.donation img{width: 60%;margin-bottom: 40px;}
+.donation-links{margin: 40px 0px;}
+.donation-links a{text-decoration: none;color: rgb(247, 247, 247);background-color: #FFC700;padding: 30px 40px;font-weight: bold;font-size: 24px;}
+.donation-links a:hover{transition: 0.3s;background-color: #ff5e00;box-shadow: 0px 0px 8px 2px rgb(146, 146, 146);}
+
+/* --- KONTAKT --- */
+.contact{margin: 80px 0px;}
+.contact-card{margin-top: 40px;display: flex;justify-content: center;flex-wrap: wrap;flex-direction: row;}
+.contact-card-title::after{display: none;}
+.contact-card-title{color: rgb(247, 247, 247);text-align: left;margin: 30px 0px;}
+.contact-card div:first-of-type{background-color: #FFC700;}
+.contact-card div:last-of-type{background-color: #222;}
+.contact-form input:not(.contact-submit){width: 100%;border: none;padding: 5px 20px;margin-bottom: 10px;}
+.contact-form input::placeholder{color: #222;}
+::-moz-placeholder{opacity:1;}
+.contact-textarea{width: 100%;padding: 5px 20px;margin-bottom: 10px;}
+.contact-submit{width: 40%;background-color: #FFC700;color: rgb(247, 247, 247);border: none;padding: 5px 20px;margin-bottom: 10px;font-size: 18px;font-weight: bold;}
+
+.contact-info-row{display: flex;flex-direction: row;align-items: flex-start;flex-wrap: nowrap;margin-bottom: 10px;}
+.contact-info-row span{color: white;background-color: none;font-size: 31px;flex-grow: 1;}
+.contact-info-row p{color: white;flex-grow: 4;font-weight: 300;font-size: 16px;}
+.contact-info-row a{color: white;flex-grow: 4;font-weight: 300;font-size: 16px;text-decoration: none;}
+
+/* --- NOVOSTI --- */
+.news{margin: 80px 0px;}
+.news-cards{margin-top: 40px;}
+.news-card{background-color: #222;padding: 0px;margin: 10px 0px;display: flex;flex-direction: column;}
+.news-card img{width: 100%;}
+.news-card p, .news-card a, .news-card h5{color: rgb(247, 247, 247);text-decoration: none;}
+.news-card h5{font-weight: bold;font-size: 18px;margin: 15px 15px 5px;border-bottom: 2px solid rgb(247, 247, 247);}
+.news-card p{font-size: 16px;font-weight: 300;margin: 15px;}
+
+.news-card a{align-self: flex-end;font-size: 16px;font-weight: 300;margin: 15px;}
+.news-card a::after{content: '';width: 0px;height: 2px;display: block;background: rgb(247, 247, 247);transition: 0.3s;}
+.news-card a:hover::after{width: 100%;}
+
+/* --- NASLOVNICA --- */
+.help{background-image: linear-gradient(90deg, rgba(0,0,0,0.38) 0%, rgba(0,0,0,0.38) 100%), url('../images/pexels-lisa-fotios-1009922.jpg');margin: 80px 0;padding: 130px 100px;background-repeat: no-repeat;background-size: cover;z-index: 0;background-position: 0% 80%;}
+.help h4{color: rgb(247, 247, 247);text-align: left;margin-bottom: 20px;}
+.help h4::after{display: none;}
+.help p{color: rgb(247, 247, 247);margin-bottom: 20px;}
+.help a{text-decoration: none;color: rgb(247, 247, 247);background-color: #FFC700;padding: 10px 30px;border-radius: 40px;}
+.help a:hover{background-color: #ff5e00;transition: 0.3s;}
+
+.animal-gallery{margin: 80px 0px;}
+.animal-cards{margin-top: 40px;}
+.animal-card{margin: 10px;height: 183px;}
+.animal-card img{width: 100%;}
+.animal-card a{position:relative;display: block;}
+.animal-card a .animal-card-img{position: absolute;top: 0;left: 0;right: 0;bottom: 0;content: '';background: rgba(255, 199, 0, 0.3);opacity: 0;transition: all 0.35s ease;}
+.animal-card a .animal-card-img:hover{opacity: 1;}
+.animal-card-name{display: flex;width: 100%;height: 100%;align-items: center;justify-content: center;}
+.animal-card-img h5{color: white;}
+
+/* --- ANIMAL GALLERY --- */
+.animal-filter{margin-top: 80px;margin-bottom: 40px;display: flex;flex-direction: column;flex-wrap: nowrap;}
+.filter-button{margin-bottom: 20px;}
+.filter-button button{background-color: white;border: none;display: flex;text-transform: uppercase;}
+.filter-button span{color: #222;width: 27px;height: 27px;align-self: flex-end;margin-right: 10px;}
+
+.all-filters{background-color: #FFD953;padding: 25px;display: none;}
+.filter-button.active .all-filters{display: block;}
+.all-filters form{display: flex;flex-direction: column;}
+.filter-columns{display: flex;flex-direction: row;flex-wrap: nowrap;justify-content: space-around;margin-bottom: 15px;}
+.filter-row label{text-transform: uppercase;}
+.filter-submit{width: 15%;background-color: #222;border-radius: 30px;border: none;color: white;padding: 10px 5px;align-self: flex-end;}
+
+/*.filter-row label{text-transform: uppercase;position: relative;left: 25px;}
+ .filter-row{position: relative;}
+.filter-row input{position: absolute;opacity: 0;cursor: pointer;height: 0;width: 0;}
+.checkmark{position: absolute;top: 0;left: 0;height: 20px;width: 20px;background-color: white;border: 2px solid rgb(78, 78, 78);}
+.filter-row:hover input ~ .checkmark {background-color: rgb(223, 223, 223);}
+.filter-row input:checked ~ .checkmark {background-color: #222;}
+.checkmark:after {content: "";position: absolute;display: none;}
+.filter-row input:checked ~ .checkmark:after {display: block;}
+.filter-row .checkmark:after {left: 9px;top: 5px;width: 5px;height: 10px;border: solid white;border-width: 0 3px 3px 0;-webkit-transform: rotate(45deg);-ms-transform: rotate(45deg);transform: rotate(45deg);}
+ */
+
+/* --- MEDIA QUERY --- */
+@media screen and (max-width: 1024px){
+    .mainMenuNav{flex-wrap: wrap-reverse;}
+    .mainMenu{justify-content: space-around;width: 100%;}
+}
+@media screen and (max-width: 764px){
+    body{overflow-x: hidden;}
+    .mainMenuNav{align-items: flex-end;justify-content: space-around;}
+    .mainMenu{position: absolute;right: 0px;height: 100vh;top: 0px;left: 0px;background-image:linear-gradient(90deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.6) 100%);flex-direction: column;align-content: center;z-index: 3;transform: translateX(100%);transition: transform 0.3s ease-in;}
+    .mainMenu li{opacity: 0;}
+    .burger{display: block;}
+
+    .aboutus-upper img{margin: 20px 0; width: 80%;}
+    .aboutus-upper-imgs{display: flex;justify-content: center;}
+
+    .donation-links a{font-size: 18px;padding: 20px 30px;}
+    .donation-links a:first-child{margin-bottom: 20px;}
+    .donation{margin-bottom: 60px;}
+
+    .help{padding-top: 100px;padding-bottom: 100px;}
+
+    footer{padding: 25px 50px;}
+    footer img{width: 100%;}
+    footer div:first-of-type, footer div:last-of-type{order: 2;}
+    footer p{margin: 20px 0px;}
+}
+
+/* --- NAV ANIMATION --- */
+.nav-active{transform: translateX(0%);}
+@keyframes navLinkFade{
+    from{opacity: 0;transform: translateX(50px);}
+    to{opacity: 1;transform: translateX(0px);}
+}
