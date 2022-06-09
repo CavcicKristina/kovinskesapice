@@ -28,7 +28,7 @@
         </div>
         <div class="row donation-links">
             <div class="col-sm-6 col-12 donation-link">
-                <a href="#" data-toggle="modal" data-target="#donationModal">Donacije na devizni račun</a>
+                <a href="#" data-toggle="modal" data-target="#donationModal">Račun za donacije</a>
             </div>
         </div>
     </div>
@@ -38,7 +38,7 @@
   <div class="modal-dialog donation-modal">
     <div class="modal-content">
       <div class="modal-header donation-modal">
-        <h5 class="modal-title" id="donationModalLabel">Devizni račun</h5>
+        <h5 class="modal-title" id="donationModalLabel">Račun za donacije</h5>
       </div>
       <div class="modal-body donation-modal">
         <img src="<?=$donationData['racun']?>" alt="#">
