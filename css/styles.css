@@ -11,7 +11,10 @@ h4::after{display:block;content:'';width: 60px;height: 3px;background-color: #22
 .paragraf{font-size: 18px;font-weight: 300;}
 
 /* --- HEADER --- */
-.mainHeader{width: 100%;height: 700px;background-image: linear-gradient(90deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.4) 100%), url('../images/pexels-rabbit-mr-10633353.jpg');background-repeat: no-repeat;background-size: cover;z-index: 0;background-position: 0% 20%;position: relative;}
+/* .mainHeader{width: 100%;height: 700px;background-image: linear-gradient(90deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.4) 100%), url('../images/pexels-rabbit-mr-10633353.jpg');background-repeat: no-repeat;background-size: cover;z-index: 0;background-position: 0% 20%;position: relative;} */
+.mainHeader{width: 100%;height: 700px;position: relative;pointer-events: none;}
+.mainHeader > .container-fluid {position:relative;z-index:990;}
+.mainMenuNav{margin-top:30px;display: flex;flex-direction: row;justify-content: space-between;align-items: flex-start;pointer-events: auto;}
 
 .mainMenuNav{margin-top:30px;display: flex;flex-direction: row;justify-content: space-between;align-items: flex-start;}
 
@@ -41,39 +44,54 @@ h4::after{display:block;content:'';width: 60px;height: 3px;background-color: #22
 .burger{display: none;cursor: pointer;z-index: 4;}
 .burger div{width:25px;height: 3px;background-color: white;margin: 5px;}
 
+/* rotator */
+.rotator {position:absolute;left:0;top:0;right:0;height:100%;display:flex;flex-flow:row wrap;overflow: hidden;pointer-events: auto;}
+.rotator img{width:100%;min-height:700px;object-fit: cover;}
+.rotator .slick-prev, .rotator .slick-next{display:none !important;}
+.rotator .rotator-slide {position:relative;display:flex;flex-flow:column wrap;align-items: center;height:700px;}
+.rotator .overlay {position:absolute;left:0;top:0;right:0;bottom:0;background: linear-gradient(90deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.4) 100%);pointer-events: none;z-index:900;}
+.rotator .headerCard {position:absolute;bottom:50px;top:auto;z-index:950;margin:0 auto;}
+
 /* --- FOOTER --- */
 footer{background-color: #222;color: rgb(247, 247, 247);display: flex;flex-direction: row;flex-wrap: wrap;padding: 50px 110px;align-items: baseline;}
-footer p{font-size: 16px;font-weight: 300;}
-footer img{width: 100%;}
+footer p{font-size: 16px;font-weight: 300;text-align: center;width: 50%;}
+footer h2{text-align: center;margin-bottom: 30px;}
+footer img{width: 7%;}
 
 /* --- O NAMA --- */
 .aboutus-upper, .aboutus-lower{margin: 80px 0px;}
 .aboutus-upper .paragraf{margin: 40px 0px;text-align: center;}
 .aboutus-lower .paragraf{margin: 40px 0;}
 .aboutus-lower img{float: left;width: 40%;margin-top: 40px;margin-right: 10px;}
-.aboutus-upper img{width: 100%;}
+/* .aboutus-upper-imgs{width: 540px;height: 390px;} */
+.aboutus-upper-imgs img{width: 100%;height: auto;}
 
 /* --- DONACIJE --- */
 .donation{margin: 80px 0px 100px;}
 .donation .paragraf{margin: 40px 0px;text-align: center;}
 .donation-img, .donation-link{display: flex;justify-content: center;align-items: center;}
+.row.donation-imgs{display: flex;flex-direction: row;justify-content: center;}
 .donation img{width: 60%;margin-bottom: 40px;}
-.donation-links{margin: 40px 0px;}
+.donation-links{margin: 40px 0px;display: flex;justify-content: center;}
 .donation-links a{text-decoration: none;color: rgb(247, 247, 247);background-color: #FFC700;padding: 30px 40px;font-weight: bold;font-size: 24px;}
 .donation-links a:hover{transition: 0.3s;background-color: #ff5e00;box-shadow: 0px 0px 8px 2px rgb(146, 146, 146);}
+.modal-dialog.donation-modal{max-width: 800px;}
+.modal-body.donation-modal{display: flex;justify-content: center;}
+.modal-header.donation-modal{justify-content: center;}
 
 /* --- KONTAKT --- */
 .contact{margin: 80px 0px;}
 .contact-card{margin-top: 40px;display: flex;justify-content: center;flex-wrap: wrap;flex-direction: row;}
 .contact-card-title::after{display: none;}
 .contact-card-title{color: rgb(247, 247, 247);text-align: left;margin: 30px 0px;}
-.contact-card div:first-of-type{background-color: #FFC700;}
-.contact-card div:last-of-type{background-color: #222;}
+.contact-card > div:first-of-type{background-color: #FFC700;}
+.contact-email, .contact-form{background-color: #222;}
 .contact-form input:not(.contact-submit){width: 100%;border: none;padding: 5px 20px;margin-bottom: 10px;}
 .contact-form input::placeholder{color: #222;}
 ::-moz-placeholder{opacity:1;}
 .contact-textarea{width: 100%;padding: 5px 20px;margin-bottom: 10px;}
 .contact-submit{width: 40%;background-color: #FFC700;color: rgb(247, 247, 247);border: none;padding: 5px 20px;margin-bottom: 10px;font-size: 18px;font-weight: bold;}
+.contact-submit:hover{background-color: #ff5e00;transition: 0.3s;}
 
 .contact-info-row{display: flex;flex-direction: row;align-items: flex-start;flex-wrap: nowrap;margin-bottom: 10px;}
 .contact-info-row span{color: white;background-color: none;font-size: 31px;flex-grow: 1;}
@@ -86,15 +104,46 @@ footer img{width: 100%;}
 .news-card{background-color: #222;padding: 0px;margin: 10px 0px;display: flex;flex-direction: column;}
 .news-card img{width: 100%;}
 .news-card p, .news-card a, .news-card h5{color: rgb(247, 247, 247);text-decoration: none;}
-.news-card h5{font-weight: bold;font-size: 18px;margin: 15px 15px 5px;border-bottom: 2px solid rgb(247, 247, 247);}
-.news-card p{font-size: 16px;font-weight: 300;margin: 15px;}
+.news-card h5{font-weight: bold;font-size: 18px;margin: 15px 15px 5px;border-bottom: 1px solid rgb(247, 247, 247);height: 46px;padding-bottom: 10px;}
+.news-card p{font-size: 0.9rem;font-weight: 300;margin: 15px;height: 72px;}
 
 .news-card a{align-self: flex-end;font-size: 16px;font-weight: 300;margin: 15px;}
 .news-card a::after{content: '';width: 0px;height: 2px;display: block;background: rgb(247, 247, 247);transition: 0.3s;}
 .news-card a:hover::after{width: 100%;}
 
+.pagination-nav{margin-top: 80px;}
+.pagination-nav .page-item{border: none;}
+.pagination-nav .page-item a{background-color: #222;color: white;}
+.pagination-nav .page-item.active a{background-color: #FFC700;color: #222;border: 1px solid #FFC700;}
+.pagination{gap: 10px;}
+
+/* --- NOVOSTI BLOG OTVOREN --- */
+.blog-article{margin: 80px 0px;}
+.blog-article h4{text-align: left;margin-bottom: 10px;}
+.blog-article h4::after{display: none;}
+.blog-article .article-info{display: flex;flex-direction: row;margin-bottom: 40px;position: relative;}
+.blog-article .article-info > p{font-size: 16px;font-weight: 300;}
+.blog-article .article-info > p:last-of-type{margin-left: 40px;position: relative;}
+.blog-article .article-info > p:last-of-type::after{content:'';width: 10px;height: 10px;background-color: #FFC700;position: absolute;right: 190px;border-radius: 10px;top: 7px;}
+.blog-article article{margin: 60px 0px;}
+.img-slider{margin-top: 25px;}
+
+.slick-prev::before, .slick-next::before{color: #FFC700;font-size: 48px;opacity: 0.5;}
+.slick-prev, .slick-next{z-index: 100;}
+.slick-prev{left: 0px;}
+.slick-next{right: 30px;}
+
+
+.previous-articles{display: flex;flex-direction: column;flex-wrap: wrap;align-items: center;}
+.novosti-back{margin-bottom: 30px;width: 100%;}
+.novosti-back a{padding: 20px;background-color: #FFC700;color: white;text-align: center;text-decoration: none;font-size: 14px;text-transform: uppercase;width: 100%;display: inline-block;}
+.novosti-back a:hover{background-color: #ff5e00;transition: 0.3s;}
+
+.prev-articles .news-card{margin-bottom: 40px;}
+
+
 /* --- NASLOVNICA --- */
-.help{background-image: linear-gradient(90deg, rgba(0,0,0,0.38) 0%, rgba(0,0,0,0.38) 100%), url('../images/pexels-lisa-fotios-1009922.jpg');margin: 80px 0;padding: 130px 100px;background-repeat: no-repeat;background-size: cover;z-index: 0;background-position: 0% 80%;}
+/* .help{background-image: linear-gradient(90deg, rgba(0,0,0,0.38) 0%, rgba(0,0,0,0.38) 100%), url('../images/pexels-lisa-fotios-1009922.jpg');margin: 80px 0;padding: 130px 100px;background-repeat: no-repeat;background-size: cover;z-index: 0;background-position: 0% 80%;} */
 .help h4{color: rgb(247, 247, 247);text-align: left;margin-bottom: 20px;}
 .help h4::after{display: none;}
 .help p{color: rgb(247, 247, 247);margin-bottom: 20px;}
@@ -103,7 +152,6 @@ footer img{width: 100%;}
 
 .animal-gallery{margin: 80px 0px;}
 .animal-cards{margin-top: 40px;}
-.animal-card{margin: 10px;height: 183px;}
 .animal-card img{width: 100%;}
 .animal-card a{position:relative;display: block;}
 .animal-card a .animal-card-img{position: absolute;top: 0;left: 0;right: 0;bottom: 0;content: '';background: rgba(255, 199, 0, 0.3);opacity: 0;transition: all 0.35s ease;}
@@ -112,33 +160,43 @@ footer img{width: 100%;}
 .animal-card-img h5{color: white;}
 
 /* --- ANIMAL GALLERY --- */
-.animal-filter{margin-top: 80px;margin-bottom: 40px;display: flex;flex-direction: column;flex-wrap: nowrap;}
-.filter-button{margin-bottom: 20px;}
+.animal-filter{margin-top: 80px;display: flex;flex-direction: column;flex-wrap: nowrap;}
+.filter-button{padding-bottom: 20px;border-bottom: 1px solid #222;}
 .filter-button button{background-color: white;border: none;display: flex;text-transform: uppercase;}
 .filter-button span{color: #222;width: 27px;height: 27px;align-self: flex-end;margin-right: 10px;}
 
-.all-filters{background-color: #FFD953;padding: 25px;display: none;}
+.all-filters{background-color: #FFD953;padding: 25px;display: none;border: 1px solid #222}
 .filter-button.active .all-filters{display: block;}
 .all-filters form{display: flex;flex-direction: column;}
 .filter-columns{display: flex;flex-direction: row;flex-wrap: nowrap;justify-content: space-around;margin-bottom: 15px;}
 .filter-row label{text-transform: uppercase;}
 .filter-submit{width: 15%;background-color: #222;border-radius: 30px;border: none;color: white;padding: 10px 5px;align-self: flex-end;}
 
-/*.filter-row label{text-transform: uppercase;position: relative;left: 25px;}
- .filter-row{position: relative;}
-.filter-row input{position: absolute;opacity: 0;cursor: pointer;height: 0;width: 0;}
-.checkmark{position: absolute;top: 0;left: 0;height: 20px;width: 20px;background-color: white;border: 2px solid rgb(78, 78, 78);}
-.filter-row:hover input ~ .checkmark {background-color: rgb(223, 223, 223);}
-.filter-row input:checked ~ .checkmark {background-color: #222;}
-.checkmark:after {content: "";position: absolute;display: none;}
-.filter-row input:checked ~ .checkmark:after {display: block;}
-.filter-row .checkmark:after {left: 9px;top: 5px;width: 5px;height: 10px;border: solid white;border-width: 0 3px 3px 0;-webkit-transform: rotate(45deg);-ms-transform: rotate(45deg);transform: rotate(45deg);}
- */
+/* --- SINGLE ANIMAL --- */
+.single-animal{margin: 80px 0px;}
+.single-animal h4{margin-bottom: 40px;}
+.animal-desc{text-align: center;margin-bottom: 40px;}
+.animal-front-img img{width: 100%;}
+.animal-info{display: flex;flex-direction: column;flex-wrap: nowrap;justify-content: flex-start;}
+.animal-back{display: flex;align-self: center;margin-bottom: 20px;flex-grow: 1;}
+.animal-back a{text-decoration: none;color: rgb(247, 247, 247);background-color: #FFC700;padding: 10px 30px;border-radius: 40px;}
+.animal-back a:hover{background-color: #ff5e00;transition: 0.3s;}
+.animal-info ul{list-style-type: none;background-color: #222;padding: 10px 20px;margin-bottom: 0px;flex-grow: 25;display: flex;flex-direction: column;justify-content: space-evenly;}
+.animal-info li{color: white;font-size: 18px;font-weight: 300;padding-bottom: 5px;}
+.animal-info li:not(li:last-child){border-bottom: 0.5px solid white;}
+.animal-main{padding-bottom: 40px;border-bottom: 1px solid #222;}
+.animal-rest-imgs img{width: 100%;}
 
 /* --- MEDIA QUERY --- */
 @media screen and (max-width: 1024px){
     .mainMenuNav{flex-wrap: wrap-reverse;}
     .mainMenu{justify-content: space-around;width: 100%;}
+    .prev-articles{display: flex;flex-direction: row;}
+    .novosti-back{display: flex;justify-content: center;padding-top: 30px;border-top: 1px solid #222;}
+    .novosti-back a{width: 40%;}
+    .row.animals-main{display: flex;flex-direction: column;}
+    .animal-info ul{order: 1;}
+    .animal-info .animal-back{order: 2;margin-top: 20px;}
 }
 @media screen and (max-width: 764px){
     body{overflow-x: hidden;}
@@ -157,9 +215,7 @@ footer img{width: 100%;}
     .help{padding-top: 100px;padding-bottom: 100px;}
 
     footer{padding: 25px 50px;}
-    footer img{width: 100%;}
-    footer div:first-of-type, footer div:last-of-type{order: 2;}
-    footer p{margin: 20px 0px;}
+    footer img{width: 15%;}
 }
 
 /* --- NAV ANIMATION --- */

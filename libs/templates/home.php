@@ -1,7 +1,7 @@
 <!doctype html>
-<html lang=<?=$this->e($lang)?>>
+<html lang="<?=$this->e($lang)?>">
     <head data-template-set="html5-reset" data-rel="<?php echo 'rel data'; ?>">
-        <meta charset="utf-8">
+        <meta charset="UTF-8">
         <title><?=$this->e($pageTitle)?></title>        
         <?=$this->section('head')?>   
     </head>

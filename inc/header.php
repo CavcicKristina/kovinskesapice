@@ -1,10 +1,13 @@
-<header class="mainHeader">
-    <div class="container-fluid d-flex flex-column flex-wrap h-100">
+<?php
+$rotatori = selectRotator();
+?>
+<header class="mainHeader pos-relative">
+    <div class="container-fluid d-flex flex-column flex-nowrap h-100">
         <div class="row">
             <div class="col">
                 <nav class="mainMenuNav">
                     <a href="<?=WWW_ROOT?>" class="logo">
-                        <img src="<?=WWW_ROOT?>images\MicrosoftTeams-image__1_-removebg-preview.png" alt="#">
+                        <img class="img-fluid" src="<?=WWW_ROOT?>images\MicrosoftTeams-image__1_-removebg-preview.png" alt="#">
                     </a>
                     <ul class="mainMenu">
                         <li>
@@ -14,7 +17,7 @@
                             <a href="<?=WWW_ROOT?>o-nama">O nama</a>
                         </li>
                         <li>
-                            <a href="<?=WWW_ROOT?>novosti">Novosti</a>
+                            <a href="<?=WWW_ROOT?>novosti/1">Novosti</a>
                         </li>
                         <li>
                             <a href="<?=WWW_ROOT?>kontakt">Kontakt</a>
@@ -23,10 +26,10 @@
                             <a href="<?=WWW_ROOT?>donacije">Donacije</a>
                         </li>
                         <li>
-                            <a href="<?=WWW_ROOT?>udomi-psa">Udomi psa</a>
+                            <a href="<?=WWW_ROOT?>udomi-psa/1">Udomi psa</a>
                         </li>
                         <li>
-                            <a href="<?=WWW_ROOT?>udomi-macku">Udomi mačku</a>
+                            <a href="<?=WWW_ROOT?>udomi-macku/1">Udomi mačku</a>
                         </li>
                     </ul>
                     <div class="burger">
@@ -36,17 +39,24 @@
                     </div>
                 </nav>
             </div>
-        </div>
-        <div class="row mx-auto mt-auto mb-5">
-            <div class="col">
-                <div class="headerCard">
-                    <h4>Jeste li čitali novosti u našoj udruzi?</h4>
-                    <p>Kliknite na poveznicu ipsod da saznate više</p>
-                    <div class="headerLink">
-                        <a href="#">Pročitaj više</a>
-                    </div>
+        </div>        
+    </div>
+    <div class="rotator">
+
+        <?php
+        if($rotatori !== false){foreach($rotatori as $rotator){?>
+        <div class="rotator-slide">
+            <div class="overlay"></div>
+            <img src="/images/content/<?=$rotator['img']?>" alt="">
+            <div class="headerCard">
+                <h4><?=$rotator['title']?></h4>
+                <p><?=$rotator['content']?></p>
+                <div class="headerLink">
+                    <a href="<?=$rotator['button']?>">Pročitaj više</a>
                 </div>
             </div>
-        </div>
+        </div>              
+        <?php }} ?>
+
     </div>
 </header>

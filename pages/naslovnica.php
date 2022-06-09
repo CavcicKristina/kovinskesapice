@@ -1,3 +1,8 @@
+<?php
+$blogs = selectLastFourArticles();
+$animals = selectAllAnimalsNaslovnica();
+$middleData = selectMiddle();
+?>
 <section class="news">
     <div class="container">
         <div class="row">
@@ -7,54 +12,31 @@
         </div>
         <div class="news-cards">
             <div class="row">
-                <div class="col-6 col-md-3">
-                    <div class="news-card">
-                        <img src="<?=WWW_ROOT?>images\articles\MicrosoftTeams-image (2).png" alt="#">
-                        <h5>Card title</h5>
-                        <p>A quick example text to build the card title and make up the bulk of the cards content</p>
-                        <a href="#">Pročitaj više >></a>
+                <?php foreach($blogs as $blog){ ?>
+                    <div class="col-6 col-md-3">
+                        <div class="news-card">
+                            <img src="<?=$blog['front_img']?>" alt="#">
+                            <h5><?=$blog['title']?></h5>
+                            <p><?=$blog['header']?></p>
+                            <a href="<?=WWW_ROOT?>novosti/<?=$blog['article_link']?>">Pročitaj više >></a>
+                        </div>
                     </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="news-card">
-                        <img src="<?=WWW_ROOT?>images\articles\MicrosoftTeams-image (2).png" alt="#">
-                        <h5>Card title</h5>
-                        <p>A quick example text to build the card title and make up the bulk of the cards content</p>
-                        <a href="#">Pročitaj više >></a>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="news-card">
-                        <img src="<?=WWW_ROOT?>images\articles\MicrosoftTeams-image (2).png" alt="#">
-                        <h5>Card title</h5>
-                        <p>A quick example text to build the card title and make up the bulk of the cards content</p>
-                        <a href="#">Pročitaj više >></a>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="news-card">
-                        <img src="<?=WWW_ROOT?>images\articles\MicrosoftTeams-image (2).png" alt="#">
-                        <h5>Card title</h5>
-                        <p>A quick example text to build the card title and make up the bulk of the cards content</p>
-                        <a href="#">Pročitaj više >></a>
-                    </div>
-                </div>
+                <?php } ?>
             </div>
         </div>
     </div>
 </section>
-<section class="help">
+<section class="help" style="background-image: linear-gradient(90deg, rgba(0,0,0,0.38) 0%, rgba(0,0,0,0.38) 100%), url('<?=$middleData['img']?>');margin: 80px 0;padding: 130px 100px;background-repeat: no-repeat;background-size: cover;z-index: 0;">
     <div class="container">
         <div class="row">
             <div class="col-12">
-                <h4>Kako možete pomoći?</h4>
+                <h4><?=$middleData['title']?></h4>
             </div>
             <div class="col-12">
-                <p class="paragraf">Budi deo nas na nasoj aukci " Humanitarna aukcija za Kovinske sapice " Doniraj hranu Uvek nam tebaju granule za sterilisane mace Tomi konzerve Medicinska hrana koju mi tesko kupujemo Mokra i suva hrana za mace koje se hrane na hranilistima. Za pse kuvamo svaki dan
-                Najcesce su nam potrebne tablete ili ampule za parazite. Posip za mace i ono najvaznije hrana.</p>
+                <p class="paragraf"><?=$middleData['content']?></p>
             </div>
             <div class="col-12">
-                <a href="<?=WWW_ROOT?>donacije">Doniraj</a>
+                <a href="<?=$middleData['link']?>">Pročitaj</a>
             </div>
         </div>
     </div>
@@ -66,107 +48,31 @@
                 <h4>Galerija životinja</h4>
             </div>
         </div>
+        <?php if($animals){ ?>
         <div class="animal-cards">
-            <div class="row">
-                <div class="col-6 col-md-3">
-                    <div class="animal-card">
-                        <a href="#">
-                            <div class="animal-card-img">
-                                <div class="animal-card-name">
-                                    <h5>Maya</h5>
+            <?php 
+            $i = 0;
+            foreach($animals as $animal){
+            ?>
+                <?php if($i == 0) echo '<div class="row">';?>
+                    <div class="col-6 col-md-4 my-3">
+                        <div class="animal-card">
+                            <a href="<?=WWW_ROOT.$currentPage."/".$animal['animal_link']?>">
+                                <div class="animal-card-img">
+                                    <div class="animal-card-name">
+                                        <h5><?=$animal['name']?></h5>
+                                    </div>
                                 </div>
-                            </div>
-                            <img src="<?=WWW_ROOT?>images\gallery\MicrosoftTeams-image (9).png" alt="#">
-                        </a>
+                                <img src="<?=$animal['front_img']?>" alt="#">
+                            </a>
+                        </div>
                     </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="animal-card">
-                        <a href="#">
-                            <div class="animal-card-img">
-                                <div class="animal-card-name">
-                                    <h5>Maya</h5>
-                                </div>
-                            </div>
-                            <img src="<?=WWW_ROOT?>images\gallery\MicrosoftTeams-image (9).png" alt="#">
-                        </a>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="animal-card">
-                        <a href="#">
-                            <div class="animal-card-img">
-                                <div class="animal-card-name">
-                                    <h5>Maya</h5>
-                                </div>
-                            </div>
-                            <img src="<?=WWW_ROOT?>images\gallery\MicrosoftTeams-image (9).png" alt="#">
-                        </a>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="animal-card">
-                        <a href="#">
-                            <div class="animal-card-img">
-                                <div class="animal-card-name">
-                                    <h5>Maya</h5>
-                                </div>
-                            </div>
-                            <img src="<?=WWW_ROOT?>images\gallery\MicrosoftTeams-image (9).png" alt="#">
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-6 col-md-3">
-                    <div class="animal-card">
-                        <a href="#">
-                            <div class="animal-card-img">
-                                <div class="animal-card-name">
-                                    <h5>Maya</h5>
-                                </div>
-                            </div>
-                            <img src="<?=WWW_ROOT?>images\gallery\MicrosoftTeams-image (9).png" alt="#">
-                        </a>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="animal-card">
-                        <a href="#">
-                            <div class="animal-card-img">
-                                <div class="animal-card-name">
-                                    <h5>Maya</h5>
-                                </div>
-                            </div>
-                            <img src="<?=WWW_ROOT?>images\gallery\MicrosoftTeams-image (9).png" alt="#">
-                        </a>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="animal-card">
-                        <a href="#">
-                            <div class="animal-card-img">
-                                <div class="animal-card-name">
-                                    <h5>Maya</h5>
-                                </div>
-                            </div>
-                            <img src="<?=WWW_ROOT?>images\gallery\MicrosoftTeams-image (9).png" alt="#">
-                        </a>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="animal-card">
-                        <a href="#">
-                            <div class="animal-card-img">
-                                <div class="animal-card-name">
-                                    <h5>Maya</h5>
-                                </div>
-                            </div>
-                            <img src="<?=WWW_ROOT?>images\gallery\MicrosoftTeams-image (9).png" alt="#">
-                        </a>
-                    </div>
-                </div>
-            </div>
+                <?php if($i == 2) echo '</div>';
+                $i++;
+                if($i == 3) $i = 0;?>
+            <?php } 
+            if($i != 0) echo '</div>';?>
         </div>
+        <?php } ?>
     </div>
 </section>

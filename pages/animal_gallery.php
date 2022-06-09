@@ -1,5 +1,10 @@
 <?php 
 
+if($_SERVER['REQUEST_METHOD'] == 'POST'){
+    $animals = filterAnimals($currentPage, $_POST);
+} else $animals = selectAllAnimals($currentPage);
+
+
 ?>
 <section class="animal-gallery">
     <div class="container">
@@ -15,7 +20,6 @@
                 </div>
                 <div class="all-filters">
                     <form action="<?=WWW_ROOT.$currentPage?>" method="POST">
-
                     <div class="filter-columns">
                         <div class="filter-column">
                             <div class="filter-row">
@@ -54,12 +58,12 @@
                             <label for="#">Spol</label>
                             </div>
                             <div class="filter-row">
-                            <input type="checkbox" name="musko" value="1">
+                            <input type="checkbox" name="spol[]" value="musko">
                             <span class="checkmark"></span>
                             <label for="musko">Muško</label>
                             </div>
                             <div class="filter-row">
-                            <input type="checkbox" name="zensko" value="1">
+                            <input type="checkbox" name="spol[]" value="zensko">
                             <span class="checkmark"></span>
                             <label for="zensko">Žensko</label>
                             </div>
@@ -82,136 +86,57 @@
                             <label for="#">Dob</label>
                             </div>
                             <div class="filter-row">
-                            <input type="checkbox" name="beba" value="1">
+                            <input type="checkbox" name="dob[]" value="beba">
                             <span class="checkmark"></span>
-                            <label for="beba">Mačić</label>
+                            <label for="beba"><?=(strcmp($currentPage, 'udomi-psa') == 0)?'Štene':'Mačić'?></label>
                             </div>
                             <div class="filter-row">
-                            <input type="checkbox" name="mlado" value="1">
+                            <input type="checkbox" name="dob[]" value="mlado">
                             <span class="checkmark"></span>
                             <label for="mlado">Mlada dob</label>
                             </div>
                             <div class="filter-row">
-                            <input type="checkbox" name="odraslo" value="1">
+                            <input type="checkbox" name="dob[]" value="odraslo">
                             <span class="checkmark"></span>
                             <label for="odraslo">Odrasla dob</label>
                             </div>
                             <div class="filter-row">
-                            <input type="checkbox" name="staro" value="1">
+                            <input type="checkbox" name="dob[]" value="staro">
                             <span class="checkmark"></span>
                             <label for="staro">Stara dob</label>
                             </div>
                         </div>
                     </div>
-                    
-
                     <input type="submit" value="PRIMJENI FILTERE" class="filter-submit">
-                
                     </form>
                 </div>
             </div>
         </div>
+        <?php if($animals){ ?>
         <div class="animal-cards">
-            <div class="row">
-                <div class="col-6 col-md-3">
-                    <div class="animal-card">
-                        <a href="#">
-                            <div class="animal-card-img">
-                                <div class="animal-card-name">
-                                    <h5>Maya</h5>
+            <?php 
+            $i = 0;
+            foreach($animals as $animal){
+            ?>
+                <?php if($i == 0) echo '<div class="row">';?>
+                    <div class="col-6 col-md-4 my-3">
+                        <div class="animal-card">
+                            <a href="<?=WWW_ROOT.$currentPage."/".$animal['animal_link']?>">
+                                <div class="animal-card-img">
+                                    <div class="animal-card-name">
+                                        <h5><?=$animal['name']?></h5>
+                                    </div>
                                 </div>
-                            </div>
-                            <img src="<?=WWW_ROOT?>images\gallery\MicrosoftTeams-image (9).png" alt="#">
-                        </a>
+                                <img src="<?=$animal['front_img']?>" alt="#">
+                            </a>
+                        </div>
                     </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="animal-card">
-                        <a href="#">
-                            <div class="animal-card-img">
-                                <div class="animal-card-name">
-                                    <h5>Maya</h5>
-                                </div>
-                            </div>
-                            <img src="<?=WWW_ROOT?>images\gallery\MicrosoftTeams-image (9).png" alt="#">
-                        </a>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="animal-card">
-                        <a href="#">
-                            <div class="animal-card-img">
-                                <div class="animal-card-name">
-                                    <h5>Maya</h5>
-                                </div>
-                            </div>
-                            <img src="<?=WWW_ROOT?>images\gallery\MicrosoftTeams-image (9).png" alt="#">
-                        </a>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="animal-card">
-                        <a href="#">
-                            <div class="animal-card-img">
-                                <div class="animal-card-name">
-                                    <h5>Maya</h5>
-                                </div>
-                            </div>
-                            <img src="<?=WWW_ROOT?>images\gallery\MicrosoftTeams-image (9).png" alt="#">
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-6 col-md-3">
-                    <div class="animal-card">
-                        <a href="#">
-                            <div class="animal-card-img">
-                                <div class="animal-card-name">
-                                    <h5>Maya</h5>
-                                </div>
-                            </div>
-                            <img src="<?=WWW_ROOT?>images\gallery\MicrosoftTeams-image (9).png" alt="#">
-                        </a>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="animal-card">
-                        <a href="#">
-                            <div class="animal-card-img">
-                                <div class="animal-card-name">
-                                    <h5>Maya</h5>
-                                </div>
-                            </div>
-                            <img src="<?=WWW_ROOT?>images\gallery\MicrosoftTeams-image (9).png" alt="#">
-                        </a>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="animal-card">
-                        <a href="#">
-                            <div class="animal-card-img">
-                                <div class="animal-card-name">
-                                    <h5>Maya</h5>
-                                </div>
-                            </div>
-                            <img src="<?=WWW_ROOT?>images\gallery\MicrosoftTeams-image (9).png" alt="#">
-                        </a>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="animal-card">
-                        <a href="#">
-                            <div class="animal-card-img">
-                                <div class="animal-card-name">
-                                    <h5>Maya</h5>
-                                </div>
-                            </div>
-                            <img src="<?=WWW_ROOT?>images\gallery\MicrosoftTeams-image (9).png" alt="#">
-                        </a>
-                    </div>
-                </div>
-            </div>
+                <?php if($i == 2) echo '</div>';
+                $i++;
+                if($i == 3) $i = 0;?>
+            <?php } 
+            if($i != 0) echo '</div>';?>
         </div>
+        <?php } ?>
     </div>
 </section>

@@ -44,29 +44,6 @@ function getActiveLangs() {
     return false;
 }
 
-function getAllArticles($lang){
-	global $conn;
-     
-	$sql = "SELECT * FROM articles AS a LEFT JOIN article_content AS b ON a.id = b.article_id WHERE a.lang = ".$conn->real_escape_string($lang)." AND b.position = 0 AND show_frontend = 1";
-	$result = $conn->query($sql);
-    $i=0;
-    if($result->num_rows > 0){
-        while($row = $result->fetch_assoc()){	
-            $content[$i]['id'] = $row['article_id'];
-            $content[$i]['title'] = $row['title'];
-            $content[$i]['author'] = $row['author'];
-            $content[$i]['img'] = $row['content'];
-            $content[$i]['active'] = $row['active'];
-            $content[$i]['article_link'] = $row['article_link'];
-            $content[$i]['date_created'] = date("m-d-Y", strtotime($row['date_created']));
-            $i++;
-        }
-        return $content;
-    }
-    return false;
-    
-}
-
 function getUserLogged(){
     global $conn;
 	$auth_key = session_id();
@@ -237,7 +214,7 @@ function unicode_urldecode($url){
     }
  
     return urldecode($url);
- }
+}
 
 function parseForSEO($name){
 
@@ -286,79 +263,6 @@ function parseForSEO($name){
 # $val - vrijednost
 function define_safe($name, $val){
 	if(!defined($name)) define("$name", $val);
-}
-
-function uploadArticle($lang, $title, $author, $slider_img, $cheditor_content, $arr_img, $conn, $main_img, $header){
-    if(empty($main_img)) $main_img = 0;
-
-    #GLAVNI DIO ARTICLE
-    #Dobijemo nazad article_id 
-    #dodati aktive 1 da se koristi
-    $stmt = $conn->prepare("INSERT INTO articles (title, header, lang, author, active, date_created) VALUES (?,?,?,?,0,NOW())");
-    if(!$stmt->bind_param("ssis", $title, $header, $lang, $author)) $stmt->error;
-    $stmt->execute();
-    $article_id = $conn->insert_id;
-
-    /* UPLOAD SHOW_FRONTEND SLIKE ZA ČLANAK */
-    $stmt = $conn->prepare("INSERT INTO article_content (article_id, content, content_type, position, show_frontend) VALUES (?,?,1,0,1)");
-    if(!$stmt->bind_param("is", $article_id, $slider_img['name'][0])) $stmt->error;
-    $stmt->execute();
-
-    $original_image_path = WEB_ROOT."images/content/article_uploads/".$article_id."-main-".$slider_img['name'][0];
-    $file = $slider_img['name'][0];
-    $tmp_file = $slider_img['tmp_name'][0];
-    move_uploaded_file($tmp_file, $original_image_path);
-    resize_image($original_image_path, $original_image_path, 600, 400, ZEBRA_IMAGE_BOXED);
-
-    /* CKEDITOR CONTENT INSERT */
-    $paragraf = htmlentities($cheditor_content,ENT_QUOTES,"UTF-8");
-    $stmt = $conn->prepare("INSERT INTO article_content (article_id, content, content_type, position, show_frontend) VALUES (?,?,3,0,0)");
-    if(!$stmt->bind_param("is", $article_id, $paragraf)) $stmt->error;
-    $stmt->execute();
-
-}
-
-function uploadArticleContent($conn, $article_id, $content_type, $position, $content, $main_content){
-    $stmt = $conn->prepare("INSERT INTO article_content (article_id, content_type, position, content, show_frontend) VALUES (?, ?, ?, ?, ?)");
-    $stmt->bind_param("iiisi",  $article_id, $content_type, $position, $content, $main_content);
-    $stmt->execute();
-}
-
-function updateArticleContent($conn, $article_id, $content_type, $position, $content, $main_content){
-    $stmt = $conn->prepare("UPDATE article_content SET content = ?, show_frontend = ? WHERE article_id = ? AND content_type = ? AND position = ?");
-    $stmt->bind_param("siiii", $content, $main_content, $article_id, $content_type, $position);
-    $stmt->execute();
-}
-
-function imageUploadArticleSlider($article_id, $img, $folder, $main_img){
-    
-    $nmb_of_img = count($img['name']);
-
-    for($i = 0; $i < $nmb_of_img; $i++){
-
-        /* moving original file to product images */
-        $original_image_path = WEB_ROOT."images/content/".$folder.$article_id."-".$img['name'][$i];
-        $file = $img['name'][$i];
-        $tmp_file = $img['tmp_name'][$i];
-        $img_extension = pathinfo($file, PATHINFO_EXTENSION);
-        $img_name = pathinfo($file, PATHINFO_FILENAME);
-        move_uploaded_file($tmp_file, $original_image_path);
-        
-        if($i == $main_img) {
-            $thumbnail_path = WEB_ROOT."images/content/article-slider-thumbs/".$article_id."-".$img_name.'-thumbnail-main.'.$img_extension;
-            $thumb1 = resize_image($original_image_path, $thumbnail_path, 600, 400, ZEBRA_IMAGE_BOXED);
-        }
-        $thumbnail_path = WEB_ROOT."images/content/article-slider-thumbs/".$article_id."-".$img_name.'-thumbnail.'.$img_extension;
-        $thumb2 = resize_image($original_image_path, $thumbnail_path, 850, 478, ZEBRA_IMAGE_BOXED);
-    }
-}
-
-function imageUploadArticle($article_id, $img, $conn, $folder){
-    /* moving original file to article images */
-    $original_image_path = WEB_ROOT."/images/content/".$folder.$article_id."-".$img['name'];
-    $file = $img['name'];
-    $tmp_file = $img['tmp_name'];
-    move_uploaded_file($tmp_file, $original_image_path);
 }
 
 ## Funkcija za kreiranje prilagođenih slika
@@ -420,146 +324,6 @@ function resize_image($source_path, $target_path, $widht, $height, $method, $bg=
     } else return true;
 }
 
-function selectArticle($article_id){
-    global $conn;
-    $data = [];
-    $last_position = 1;
-
-    $result = $conn->query("SELECT title, header, lang FROM articles WHERE id = ".$article_id." ");
-    if($result->num_rows > 0){
-        while($row = $result->fetch_assoc()){
-            $data['title'] = $row['title'];
-            $data['header'] = $row['header'];
-            $data['lang'] = $row['lang'];
-        }
-    } else return false;
-
-    $result = $conn->query("SELECT position, content_type, content FROM article_content WHERE article_id = ".$article_id." ORDER BY position ASC");
-    if($result->num_rows > 0){
-        while($row = $result->fetch_assoc()){
-            if($row['content_type'] == '3') $row['content'] = html_entity_decode($row['content'], ENT_QUOTES, 'UTF-8');
-            $data[] = $row;
-            if($row['position'] > $last_position) $last_position = $row['position'];
-        }
-    } else return false;
-
-    $data['last_position'] = $last_position;
-
-    return $data;
-}
-
-function updateArticle($id, $title, $author, $slider_img, $arr_text_video, $arr_img, $main_img, $header){
-    global $conn;
-    if(empty($main_img)) $main_img = 0;
-
-    $stmt = $conn->prepare("UPDATE articles SET title = ?, header = ? WHERE id = ? ");
-    if(!$stmt->bind_param("ssi", $title, $header, $id)) $stmt->error;
-    $stmt->execute();
-
-    /* SLIDER UPDATE I INSERT AKO IMA MANJE FOTOGRAFIJA*/
-    if(!empty($slider_img['name'][0])){
-        /* ovdje traži fotografije u bazi i sprema u arr */
-        $delete_imgs_slider = [];
-        $id = (int)mysqli_real_escape_string($conn, trim($id));
-        $result = $conn->query("SELECT content, id FROM article_content WHERE article_id = $id AND content_type = 1");
-        if($result->num_rows > 0){
-            $i = 0;
-            while($row = $result->fetch_assoc()){
-                $delete_imgs_slider[$i]['content'] = $row['content'];
-                $delete_imgs_slider[$i]['id'] = $row['id'];
-                $i++;
-            }
-        }
-
-        /* ovdje kopa po folderu i ako ih nađe, obriše ih */
-        foreach($delete_imgs_slider as $img){
-            $img = $img['content'];
-            $parts = explode('.', $img);
-
-            if(file_exists(WEB_ROOT.'images/content/article-sliders/'.$id.'-'.$img)) unlink(WEB_ROOT.'images/content/article-sliders/'.$id.'-'.$img);
-
-            if(file_exists(WEB_ROOT.'images/content/article-slider-thumbs/'.$id.'-'.$parts[0].'-thumbnail.'.$parts[1])) unlink(WEB_ROOT.'images/content/article-slider-thumbs/'.$id.'-'.$parts[0].'-thumbnail.'.$parts[1]);
-
-            if(file_exists(WEB_ROOT.'images/content/article-slider-thumbs/'.$id.'-'.$parts[0].'-thumbnail-main.'.$parts[1])) unlink(WEB_ROOT.'images/content/article-slider-thumbs/'.$id.'-'.$parts[0].'-thumbnail-main.'.$parts[1]);
-        }
-
-        /* ovdje kopa nove fotografije koje su došle POSTOM i onda ih gura u foldere */
-        imageUploadArticleSlider($id, $slider_img, 'article-sliders/', $main_img);
-
-        /* update u bazu */
-        $i = 0;
-
-        foreach($slider_img['name'] as $key => $slider_img_name){
-
-            $position = 0;
-            $content = $slider_img_name;
-            $main_content = 0;
-            $article_id = $id;
-            $content_type = 1;
-
-            if($i == (int)$main_img){
-                $main_content = 1;
-            }
-
-            if(($key+1) <= count($delete_imgs_slider)){
-                $stmt = $conn->prepare("UPDATE article_content SET position = ?, content = ?, show_frontend = ? WHERE article_id = ? AND content_type = ? AND id = ?");
-                $stmt->bind_param("isiiii", $position, $content, $main_content, $article_id, $content_type, $delete_imgs_slider[$i]['id']);
-                $stmt->execute();
-            } else {
-                $stmt = $conn->prepare("INSERT INTO article_content (article_id, content_type, position, content, show_frontend) VALUES (?, ?, ?, ?, ?)");
-                $stmt->bind_param("iiisi", $article_id, $content_type, $position, $content, $main_content);
-                $stmt->execute();
-            }
-           
-            $i++; 
-        }
-        
-    }
-
-    /* znači... okej, treba samo dohvatiti sve iz textarea i update-at šta god da je napravio
-        ne treba slike ništa dirati, niti video, samo update na content_type = 1 article_id = ? i to je to I guess 
-    */
-
-    $article_paragraf_slidervideo = array_slice($arr_text_video, 2, -1, true);
-
-    $slider_videos = [];
-    $id = (int)mysqli_real_escape_string($conn, trim($id));
-    $result = $conn->query("SELECT content, id FROM article_content WHERE article_id = $id AND content_type = 2");
-    if($result->num_rows > 0){
-        $i = 0;
-        while($row = $result->fetch_assoc()){
-            $slider_videos[$i]['id'] = $row['id'];
-            $i++;
-        }
-    }
-
-    $j = 0;
-    foreach($article_paragraf_slidervideo as $key => $value){
-        $pieces = explode("-", $key);
-        if(strpos($pieces[0], 'paragraf') !== false){
-
-            $paragraf = htmlentities($value,ENT_QUOTES,"UTF-8");
-
-            $stmt = $conn->prepare("UPDATE article_content SET content = ? WHERE article_id = ? AND content_type = 3");
-            $stmt->bind_param("si", $paragraf, $id);
-            $stmt->execute();
-
-        } elseif(strpos($pieces[0].'-'.$pieces[1], 'slider-video') !== false){
-
-            if($pieces[2] <= count($slider_videos)){
-                $stmt = $conn->prepare("UPDATE article_content SET content = ? WHERE article_id = ? AND id = ? AND content_type = 2");
-                $stmt->bind_param("sii", $value, $id, $slider_videos[$j]['id']);
-                $stmt->execute();
-            } else {
-                $stmt = $conn->prepare("INSERT INTO article_content (article_id, content_type, position, content, show_frontend) VALUES (?, 2, 0, ?, 0)");
-                $stmt->bind_param("is",  $id, $value);
-                $stmt->execute();
-            }
-
-        }
-    }
-
-}
 
 function deleteArticle($id){
     global $conn;
@@ -758,12 +522,12 @@ function selectAllThrownCategoryArticle(){
 function uploadNewArticle($content, $author, $slider_img){
     global $conn;
 
-    $title = $content['article_title'];
     $answer = $content['answer'];
-    $header = $content['header'];
     $lang = 1;
 
+    $title=htmlentities($content['article_title'],ENT_QUOTES,"UTF-8");
     $paragraf = htmlentities($content['paragraf-1'],ENT_QUOTES,"UTF-8");
+    $header=htmlentities($content['header'],ENT_QUOTES,"UTF-8");
 
     if($slider_img['name'][0] != '') $front_img = $slider_img['name'][0];
     else $front_img = '0';
@@ -792,8 +556,7 @@ function uploadNewArticle($content, $author, $slider_img){
             $tmp_file = $slider_img['tmp_name'][$i];
             $img_name = pathinfo($file, PATHINFO_FILENAME);
             move_uploaded_file($tmp_file, $original_image_path);
-
-            
+            resize_image($original_image_path, $original_image_path, 825, 500, ZEBRA_IMAGE_BOXED);
 
             if($i == $answer){ 
                 $front = 1;
@@ -820,82 +583,210 @@ function uploadNewArticle($content, $author, $slider_img){
 function deleteArticleWithCategory($id){
     global $conn;
 
+    /* 
+    dohvati sve slike, i prvo sve njih obriši (ALI PRVO OBRIŠI FRONT SLIKU)
+    updateaj article da je delete 1
+    */
+
     $delete_imgs = [];
     $id = (int)mysqli_real_escape_string($conn, trim($id));
-    $result = $conn->query("SELECT front_img FROM articles WHERE id = ".$conn->real_escape_string($id));
+    $stmt = $conn->prepare("SELECT * FROM `article_imgs` WHERE `article_id` = ?");
+    $stmt->bind_param('i', $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $stmt->free_result();
     if($result->num_rows > 0){
         while($row = $result->fetch_assoc()){
-            $delete_imgs[] = $row['front_img'];
+            $delete_imgs[] = $row;
         }
     }
 
+    /* brisanje slika u folderu images/articles */
     foreach($delete_imgs as $img){
-        $parts = explode('.', $img);
-        if(file_exists(WEB_ROOT.'images/content/article_uploads/'.$id.'-main-'.$img)) unlink(WEB_ROOT.'images/content/article_uploads/'.$id.'-main-'.$img);
+        if($img['front'] == 1){
+            $change_front_name = str_replace('.webp','',$img['img']);
+            /* traženje ekstenzije */
+            if(file_exists(WEB_ROOT.'images/articles/original/'.$change_front_name.'.png')) $full_change_front_name = $change_front_name.'.png';
+            if(file_exists(WEB_ROOT.'images/articles/original/'.$change_front_name.'.jpg')) $full_change_front_name = $change_front_name.'.jpg';
+            if(file_exists(WEB_ROOT.'images/articles/original/'.$change_front_name.'.jpeg')) $full_change_front_name = $change_front_name.'.jpeg';
+            if(file_exists(WEB_ROOT.'images/articles/original/'.$change_front_name.'.gif')) $full_change_front_name = $change_front_name.'.gif';
+            if(file_exists(WEB_ROOT.'images/articles/original/'.$change_front_name.'.webp')) $full_change_front_name = $change_front_name.'.webp';
+
+            if(file_exists(WEB_ROOT.'images/articles/original/'.$full_change_front_name)) unlink(WEB_ROOT.'images/articles/original/'.$full_change_front_name);
+            if(file_exists(WEB_ROOT.'images/articles/'.$img['img'])) unlink(WEB_ROOT.'images/articles/'.$img['img']);
+
+        } else {
+            if(file_exists(WEB_ROOT.'images/articles/original/'.$img['img'])) unlink(WEB_ROOT.'images/articles/original/'.$img['img']);
+        }
     }
 
-    //brisanje slika ubačenih u editor u folder articles-upload
-    array_map('unlink', glob(WEB_ROOT.'images/content/article_uploads/'.$id.'-upload_*'));
+    /* brisanje slika iz baze */
+    $stmt = $conn->prepare("DELETE FROM `article_imgs` WHERE `article_id` = ?");
+    $stmt->bind_param('i', $id);
+    $stmt->execute();
 
-    $id = mysqli_real_escape_string($conn, $id);
-    $result = $conn->query("SELECT * FROM article_content WHERE article_id = $id");
-    $article_content_num = $result->num_rows;
-    for($i = 0; $i < $article_content_num; $i++){
-        $stmt = $conn->query("DELETE FROM article_content WHERE article_id = $id");
-    }
-
-    $stmt = $conn->query("UPDATE articles SET deleted = 1 WHERE id = $id");
+    $stmt = $conn->prepare("UPDATE `articles` SET `deleted` = 1 WHERE `id` = ?");
+    $stmt->bind_param('i', $id);
+    $stmt->execute();
 }
 
-function selectArticleAndType($article_id, $article_category){
+function selectArticle($article_id){
     global $conn;
 
     $data = [];
     $last_position = 1;
 
-    $result = $conn->query("SELECT * FROM `articles` WHERE `id` = ".$conn->real_escape_string($article_id)." AND `category_id` = ".$conn->real_escape_string($article_category));
+    $stmt = $conn->prepare("SELECT * FROM `articles` WHERE `id` = ? AND `deleted` = 0");
+    $stmt->bind_param("i",$article_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
     if($result->num_rows > 0){
-        while($row = $result->fetch_assoc()){
-            $data = $row;
-            $data['front_img'] = WWW_ROOT."images/content/article_uploads/".$row['front_img'];
-        }
+        while($row = $result->fetch_assoc()) $data = $row;
     } else return false;
+
+    $stmt = $conn->prepare("SELECT * FROM `article_imgs` WHERE `article_id` = ?");
+    $stmt->bind_param("i",$article_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $stmt->free_result();
+    $i = 0;
+    if($result->num_rows > 0){
+        while($row = $result->fetch_assoc()){ 
+            if($row['front'] == 1) $data['imgs'][$i] = WWW_ROOT."images/articles/".$row['img'];
+            else $data['imgs'][$i] = WWW_ROOT."images/articles/original/".$row['img'];
+            $i++;
+        }
+    } else $data['imgs'] = '';
 
     return $data;
 }
 
-function updateArticleWithCategory($article_id, $type, $title, $header, $paragraf, $front_image, $article_category_url = null){
+function updateArticleWithCategory($content, $cms_user, $front_image){
     global $conn;
+    $title = $content['article_title'];
+    $header = $content['header'];
+    $paragraf = $content['paragraf-1'];
+    $article_id = $content['id'];
     
     $articleData = [];
-    $result = $conn->query("SELECT * FROM articles WHERE id = ".$conn->real_escape_string($article_id)." ");
+    $stmt = $conn->prepare("SELECT * FROM `articles` WHERE `id` = ? ");
+    $stmt->bind_param("i", $article_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $stmt->free_result();
     if($result->num_rows > 0){
         while($row = $result->fetch_assoc()){
             $articleData = $row;
         }
     }
+    $stmt = $conn->prepare("SELECT * FROM `article_imgs` WHERE `article_id` = ? ORDER BY `id` ASC");
+    $stmt->bind_param("i", $article_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $stmt->free_result();
+    if($result->num_rows > 0){
+        $x = 0;
+        while($row = $result->fetch_assoc()){
+            $articleData['imgs'][$x] = $row;
+            $x++;
+        }
+    }
+    
 
-    if((int)$type === 2 && isset($front_image['name'])){
-        if($front_image['name'][0] !== ''){
-            // Obriši staru sliku
-            if(file_exists(WEB_ROOT.'images/content/articles_upload/'.$article_id.'-'.$articleData['front_img'])) unlink(WEB_ROOT.'images/content/articles_upload/'.$article_id.'-'.$articleData['front_img']);
+    /* uploadaju se nove slike */
+    if($front_image['name'][0] !== ''){
+        // Obriši staru sliku
+        foreach($articleData['imgs'] as $delete_img){
+            if(file_exists(WEB_ROOT.'images/articles/'.$delete_img['img'])) unlink(WEB_ROOT.'images/articles/'.$delete_img['img']);
+            if(file_exists(WEB_ROOT.'images/articles/original/'.$delete_img['img'])) unlink(WEB_ROOT.'images/articles/original/'.$delete_img['img']);
+        }
+
+        $stmt = $conn->prepare("DELETE FROM `article_imgs` WHERE `article_id` = ?");
+        $stmt->bind_param("i", $article_id);
+        $stmt->execute();
+        $stmt->free_result();
+
+        if($content['answer'] == '') $answer = 0;
+        else $answer = (int) $content['answer'];
+
+        for($i = 0; $i < count($front_image['name']); $i++){
+
+            if($answer == $i){
+                $original_image_path = WEB_ROOT."images/articles/original/".$article_id.'-'.$front_image['name'][$i];            
+                $file = $front_image['name'][$i];
+                $tmp_file = $front_image['tmp_name'][$i];
+                $img_name = pathinfo($file, PATHINFO_FILENAME);
+                move_uploaded_file($tmp_file, $original_image_path);
+        
+                $frontImage = $article_id.'-'.$img_name.'.webp';
+                $webp_image_path = WEB_ROOT."images/articles/".$frontImage;
+        
+                resize_image($original_image_path, $webp_image_path, 600, 400, ZEBRA_IMAGE_BOXED);
             
-            // Postavi novu
-            $original_image_path = WEB_ROOT."images/content/article_uploads/original/".$front_image['name'][0];            
-            $file = $front_image['name'][0];
-            $tmp_file = $front_image['tmp_name'][0];
-            $img_name = pathinfo($file, PATHINFO_FILENAME);
-            move_uploaded_file($tmp_file, $original_image_path);
+                $stmt = $conn->prepare("INSERT INTO `article_imgs` (article_id, img, front) VALUES (?,?,1)");
+                $stmt->bind_param("is", $article_id, $frontImage);
+                $stmt->execute();
+            } else {
+                $original_image_path = WEB_ROOT."images/articles/original/".$article_id.'-'.$front_image['name'][$i];            
+                $file = $front_image['name'][$i];
+                $tmp_file = $front_image['tmp_name'][$i];
+                $img_name = pathinfo($file, PATHINFO_FILENAME);
+                move_uploaded_file($tmp_file, $original_image_path);
+                resize_image($original_image_path, $original_image_path, 825, 500, ZEBRA_IMAGE_BOXED);
+                $uploadimg = $article_id.'-'.$front_image['name'][$i];
 
-            $frontImage = $article_id.'-'.$img_name.'.webp';
-            $webp_image_path = WEB_ROOT."images/content/article_uploads/".$frontImage;
+                $stmt = $conn->prepare("INSERT INTO `article_imgs` (article_id, img, front) VALUES (?,?,0)");
+                $stmt->bind_param("is", $article_id, $uploadimg);
+                $stmt->execute();
+            }
 
-            resize_image($original_image_path, $webp_image_path, 600, 400, ZEBRA_IMAGE_BOXED);
+            
+        }
+    } elseif($content['answer'] != ''){
+        $answer = (int) $content['answer'];
+        $y = 0;
+        
+        foreach($articleData['imgs'] as $deleteimages){
+            if($deleteimages['front'] == 1){ 
+                $change_front_name = str_replace('.webp','',$deleteimages['img']);
+                /* traženje ekstenzije */
+                if(file_exists(WEB_ROOT.'images/articles/original/'.$change_front_name.'.png')) $full_change_front_name = $change_front_name.'.png';
+                if(file_exists(WEB_ROOT.'images/articles/original/'.$change_front_name.'.jpg')) $full_change_front_name = $change_front_name.'.jpg';
+                if(file_exists(WEB_ROOT.'images/articles/original/'.$change_front_name.'.jpeg')) $full_change_front_name = $change_front_name.'.jpeg';
+                if(file_exists(WEB_ROOT.'images/articles/original/'.$change_front_name.'.gif')) $full_change_front_name = $change_front_name.'.gif';
+                if(file_exists(WEB_ROOT.'images/articles/original/'.$change_front_name.'.webp')) $full_change_front_name = $change_front_name.'.webp';
+                /* updateanje baze da front nije više front */
+                $stmt = $conn->prepare("UPDATE `article_imgs` SET `img` = ?, `front` = 0 WHERE `article_id` = ? AND `front` = 1");
+                $stmt->bind_param("si", $full_change_front_name, $article_id);
+                $stmt->execute();
+                $stmt->free_result();
 
-            // baza            
-            $stmt = $conn->prepare("UPDATE articles SET front_img = ? WHERE id = ? AND article_type = ?");
-            $stmt->bind_param("sii", $frontImage,  $article_id, $type);
-            $stmt->execute();
+                /* brisanje stare front slike */
+                if(file_exists(WEB_ROOT.'images/articles/'.$deleteimages['img'])){ 
+                    unlink(WEB_ROOT.'images/articles/'.$deleteimages['img']);
+                    break;
+                }
+            }
+        }
+        foreach($articleData['imgs'] as $images){
+            if($y == $answer){
+                $img_id = $images['id'];
+                $original_image_path = WEB_ROOT."images/articles/original/".$images['img'];
+                $img_name = pathinfo($images['img'], PATHINFO_FILENAME);
+        
+                $frontImage = $img_name.'.webp';
+                $webp_image_path = WEB_ROOT."images/articles/".$frontImage;
+        
+                resize_image($original_image_path, $webp_image_path, 600, 400, ZEBRA_IMAGE_BOXED);
+            
+                $stmt = $conn->prepare("UPDATE `article_imgs` SET `front` = 1, `img` = ? WHERE `id` = ?");
+                $stmt->bind_param("si", $frontImage, $img_id);
+                $stmt->execute();
+                
+                break;
+            } else{
+                $y++;
+            }
         }
     }
 
@@ -912,26 +803,10 @@ function updateArticleWithCategory($article_id, $type, $title, $header, $paragra
     // Update title i header i paragraf
     $title=htmlentities($title,ENT_QUOTES,"UTF-8");
     $paragraf=htmlentities($paragraf,ENT_QUOTES,"UTF-8");
-    if($article_category_url == null && empty($article_category_url)){
+    $header=htmlentities($header,ENT_QUOTES,"UTF-8");
+    $stmt = $conn->prepare("UPDATE `articles` SET `title` = ?, `header` = ?, `content` = ?, `article_link` = ?, `author` = ? WHERE `id` = ?");
+    $stmt->bind_param("sssssi", $title, $header, $paragraf, $url, $user, $article_id);
 
-        $stmt = $conn->prepare("UPDATE `articles` SET `title` = ?, `header` = ?, `content` = ?, `article_link` = ? WHERE `id` = ? AND `article_type` = ?");
-        $stmt->bind_param("ssssii", $title, $header, $paragraf, $url, $article_id, $type);
-
-    } else {
-
-        /* zbog mog glupog spajanja, mora prvo otici u article_categories da nade id koji zapravo veze sve. i fucked up hihi */
-        $stmt = $conn->prepare("SELECT * FROM `article_categories` WHERE `category_name` = ?");
-        $stmt->bind_param("s", $article_category_url);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $stmt->free_result();
-        $row = $result->fetch_assoc();
-        $article_category_id = $row['id'];
-        $article_category_type = $row['category_type'];
-
-        $stmt = $conn->prepare("UPDATE `articles` SET `title` = ?, `header` = ?, `content` = ?, `article_link` = ?, `category_id` = ? WHERE `id` = ? ");
-        $stmt->bind_param("ssssii", $title, $header, $paragraf, $url, $article_category_id, $article_id);
-    }
     $stmt->execute();
 }
 
@@ -967,119 +842,6 @@ function beautify_filename($filename) {
     $filename = mb_strtolower($filename, mb_detect_encoding($filename));
     $filename = trim($filename, '.-');
     return $filename;
-}
-
-
-function selectMenuLinks(){
-    global $conn;
-
-    $query_categ = "SELECT 
-    a.id, b.content, b.link, a.order, a.content AS `meni`, a.link AS `meni_link`, b.icon as icon, a.id AS `meni_id`, b.id AS `sub_id`, b.active 
-    FROM `meni` AS a 
-    LEFT JOIN `sub_meni` AS b ON b.meni_id = a.id
-    ORDER BY a.order";
-      $result_categ = $conn->query($query_categ);
-      $result=[];
-      $main_links = [];
-      $sub_meni_link = [];
-      $i = 0;
-      while($row_categ = $result_categ->fetch_assoc() ){     
-        if(!in_array($row_categ['meni'], $main_links)) {
-          $main_links[$row_categ['meni_id']]['title'] = $row_categ['meni'];
-          $main_links[$row_categ['meni_id']]['order'] = $row_categ['order'];
-          $main_links[$row_categ['meni_id']]['id'] = $row_categ['id'];
-          if(!empty($row_categ['meni_link']) || $row_categ['meni_link'] !='') {$main_links[$row_categ['meni_id']]['meni_link'] = $row_categ['meni_link'];}
-        }
-        if($row_categ['content'] != NULL){
-        $sub_meni_link[$i]['link_name'] = $row_categ['content'];
-        $sub_meni_link[$i]['link_url'] = $row_categ['link'];
-        $sub_meni_link[$i]['link_id'] = $row_categ['sub_id'];
-        $sub_meni_link[$i]['active'] = $row_categ['active'];
-        $sub_meni_link[$i]['icon'] = $row_categ['icon'];
-        }
-        $i++;
-      }
-      return ['mainMenu'=>$main_links,'subMenu'=>$sub_meni_link];
-}
-
-function selectArticleCategoryName($category_id){
-    global $conn;
-
-    $stmt = $conn->prepare("SELECT `content` FROM `sub_meni` WHERE `category_id` = ?");
-    $stmt->bind_param("i", $category_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $stmt->free_result();
-    if($result->num_rows > 0){
-        $stmt->free_result();
-        $row = $result->fetch_assoc();
-        $category_title = $row['content'];
-        return $category_title;
-    } else {
-        $stmt = $conn->prepare("SELECT c.content 
-        FROM `article_categories` AS a 
-        LEFT JOIN `meni` AS c ON a.`category_name` = c.link 
-        WHERE a.id = ?");
-        $stmt->bind_param("i", $category_id);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $stmt->free_result();
-        if($result->num_rows > 0){
-            $stmt->free_result();
-            $row = $result->fetch_assoc();
-            $category_title = $row['content'];
-            return $category_title;
-        } else return false;
-    }
-    
-}
-
-function selectMenuLinksForArticles(){
-    global $conn;
-
-    $query_categ = "SELECT 
-    a.id, b.content, b.category_id, b.link, a.order, a.content AS `meni`, a.link AS `meni_link`, b.icon as icon, a.id AS `meni_id`, b.id AS `sub_id`, b.active 
-    FROM `meni` AS a 
-    LEFT JOIN `sub_meni` AS b ON b.meni_id = a.id 
-    JOIN `article_categories` AS c ON c.category_name = b.link 
-    WHERE c.category_type <> 4
-    ORDER BY a.order";
-      $result_categ = $conn->query($query_categ);
-      $result=[];
-      $main_links = [];
-      $sub_meni_link = [];
-      $i = 0;
-      while($row_categ = $result_categ->fetch_assoc() ){     
-        if(!in_array($row_categ['meni'], $main_links)) {
-          $main_links[$row_categ['meni_id']]['title'] = $row_categ['meni'];
-          $main_links[$row_categ['meni_id']]['order'] = $row_categ['order'];
-          $main_links[$row_categ['meni_id']]['id'] = $row_categ['id'];
-          if(!empty($row_categ['meni_link']) || $row_categ['meni_link'] !='') {$main_links[$row_categ['meni_id']]['meni_link'] = $row_categ['meni_link'];}
-        }
-        if($row_categ['content'] != NULL){
-        $sub_meni_link[$i]['link_name'] = $row_categ['content'];
-        $sub_meni_link[$i]['link_url'] = $row_categ['link'];
-        $sub_meni_link[$i]['link_id'] = $row_categ['sub_id'];
-        $sub_meni_link[$i]['active'] = $row_categ['active'];
-        $sub_meni_link[$i]['icon'] = $row_categ['icon'];
-        $sub_meni_link[$i]['category_id'] = $row_categ['category_id'];
-        }
-        $i++;
-      }
-      return ['mainMenu'=>$main_links,'subMenu'=>$sub_meni_link];
-}
-
-function selectMainMenu(){
-    global $conn;
-    $stmt = $conn->prepare("SELECT * FROM `meni`");
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $stmt->free_result();
-    $data = [];
-    while($row = $result->fetch_assoc()){
-        $data[] = $row;
-    }
-    return $data;
 }
 
 function selectArticleLinks(){
@@ -1138,6 +900,1109 @@ function getPageViews($lang){
         $data[$row['id']]=$row;
     }
     return $data;
+}
+
+function selectAllDogs(){
+    global $conn;
+
+    $stmt = $conn->prepare("SELECT * FROM `dogs` WHERE `deleted` = 0");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $stmt->free_result();
+    $data = [];
+    if($result->num_rows > 0){
+        while($row = $result->fetch_assoc()) $data[] = $row;
+
+        $stmt = $conn->prepare("SELECT * FROM `dog_imgs` WHERE `dog_id` = ? AND `front` = 1");
+        $i = 0;
+        foreach($data as $dog){
+            $stmt->bind_param("i",$dog['id']);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $stmt->free_result();
+            if($result->num_rows > 0){
+                $row = $result->fetch_assoc();
+                $data[$i]['front_img'] = WWW_ROOT.'images/animals/'.$row['img'];
+            } else {
+                $data[$i]['front_img'] = '';
+            }
+            $i++;
+        }
+
+        return $data;
+    } else return false;
+}
+
+function selectAllCats(){
+    global $conn;
+
+    $stmt = $conn->prepare("SELECT * FROM `cats` WHERE `deleted` = 0");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $stmt->free_result();
+    $data = [];
+    if($result->num_rows > 0){
+        while($row = $result->fetch_assoc()) $data[] = $row;
+
+        $stmt = $conn->prepare("SELECT * FROM `cat_imgs` WHERE `cat_id` = ? AND `front` = 1");
+        $i = 0;
+        foreach($data as $dog){
+            $stmt->bind_param("i",$dog['id']);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $stmt->free_result();
+            if($result->num_rows > 0){
+                $row = $result->fetch_assoc();
+                $data[$i]['front_img'] = WWW_ROOT.'images/animals/'.$row['img'];
+            } else {
+                $data[$i]['front_img'] = '';
+            }
+            $i++;
+        }
+
+        return $data;
+    } else return false;
+}
+
+function uploadNewDog($dog_info, $dog_photo){
+    global $conn;
+
+    if($dog_info['answer'] != '') $answer = $dog_info['answer'];
+    else $answer = 0;
+    if(isset($dog_info['spol'][0])) $spol = $dog_info['spol'][0];
+    if(isset($dog_info['dob'][0])) $dob = $dog_info['dob'][0];
+    if(isset($dog_info['cijepljen'])) $cijepljen = $dog_info['cijepljen'];
+    else $cijepljen = 0;
+    if(isset($dog_info['cipiran'])) $cipiran = $dog_info['cipiran'];
+    else $cipiran = 0;
+    if(isset($dog_info['kastriran'])) $kastriran = $dog_info['kastriran'];
+    else $kastriran = 0;
+    if(isset($dog_info['slaganje'])) $slaganje = $dog_info['slaganje'];
+    else $slaganje = 0;
+    if(isset($dog_info['socijaliziran'])) $socijaliziran = $dog_info['socijaliziran'];
+    else $socijaliziran = 0;
+    if(isset($dog_info['plah'])) $plah = $dog_info['plah'];
+    else $plah = 0;
+    if(isset($dog_info['aktivniji'])) $aktivniji = $dog_info['aktivniji'];
+    else $aktivniji = 0;
+    if(isset($dog_info['manje-aktivni'])) $manje_aktivni = $dog_info['manje-aktivni'];
+    else $manje_aktivni = 0;
+    if(isset($dog_info['paragraf-1'])) $opis = htmlentities($dog_info['paragraf-1'],ENT_QUOTES,"UTF-8");
+    else $opis = '';
+    $lang = 1;
+
+    $dog_name=htmlentities($dog_info['article_title'],ENT_QUOTES,"UTF-8");
+    $dog_breed=htmlentities($dog_info['pasmina'],ENT_QUOTES,"UTF-8");
+    $dog_size=htmlentities($dog_info['velicina'],ENT_QUOTES,"UTF-8");
+
+    $animal_url = parseForSEO($dog_name).'%';
+    $url = parseForSEO($dog_name);
+    $stmt = $conn->prepare("SELECT * FROM `dogs` WHERE `animal_link` LIKE ? AND `deleted` = 0 ORDER BY `animal_link` DESC LIMIT 1");
+    $stmt->bind_param("s", $animal_url);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $stmt->free_result();
+    $row = $result->fetch_assoc();
+    if(!empty($row)) $url = parseForSEO($dog_name.'1');
+
+    $stmt = $conn->prepare("INSERT INTO `dogs` (`name`, `spol`, `dob`, `cijepljen`, `cipiran`, `kastriran`, `slaganje`, `socijaliziran`, `plah`, `aktivniji`, `manje_aktivni`, `opis`, `animal_link`, `pasmina`, `velicina`, `active`, `deleted`, `view_count`, `date_created`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0,0,0,NOW())");
+    if(!$stmt->bind_param("sssiiiiiiiissss", $dog_name, $spol, $dob, $cijepljen, $cipiran, $kastriran, $slaganje, $socijaliziran, $plah, $aktivniji, $manje_aktivni, $opis, $url, $dog_breed, $dog_size)) $stmt->error;
+    $stmt->execute();
+    $dog_id = $conn->insert_id;
+
+    if($dog_photo['name'][0] != ''){
+        for($i = 0; $i < count($dog_photo['name']); $i++){
+
+            $original_image_path = WEB_ROOT."images/animals/original/".$dog_id."-".$dog_photo['name'][$i];
+            $file = $dog_photo['name'][$i];
+            $tmp_file = $dog_photo['tmp_name'][$i];
+            $img_name = pathinfo($file, PATHINFO_FILENAME);
+            move_uploaded_file($tmp_file, $original_image_path);
+
+            if($i == $answer){ 
+                $front = 1;
+                $frontImage = $dog_id.'-'.$img_name.'.webp';
+                $webp_image_path = WEB_ROOT."images/animals/".$frontImage;
+                resize_image($original_image_path, $webp_image_path, 830, 475, ZEBRA_IMAGE_BOXED);
+                $sql_img = $frontImage;
+            } else {
+                $thumb_path = WEB_ROOT."images/animals/thumbs/".$dog_id."-".$dog_photo['name'][$i];
+                resize_image($original_image_path, $thumb_path, 350, 260, ZEBRA_IMAGE_BOXED);
+                $front = 0;
+                $sql_img = $dog_id."-".$dog_photo['name'][$i];
+            }
+
+            // baza            
+            $stmt = $conn->prepare("INSERT INTO `dog_imgs` (`dog_id`, `img`, `front`) VALUES (?,?,?)");
+            $stmt->bind_param("isi", $dog_id, $sql_img, $front);
+            $stmt->execute();
+        }
+        return true;
+    }
+}
+
+function uploadNewCat($dog_info, $dog_photo){
+    global $conn;
+
+    if($dog_info['answer'] != '') $answer = $dog_info['answer'];
+    else $answer = 0;
+    if(isset($dog_info['spol'][0])) $spol = $dog_info['spol'][0];
+    if(isset($dog_info['dob'][0])) $dob = $dog_info['dob'][0];
+    if(isset($dog_info['cijepljen'])) $cijepljen = $dog_info['cijepljen'];
+    else $cijepljen = 0;
+    if(isset($dog_info['cipiran'])) $cipiran = $dog_info['cipiran'];
+    else $cipiran = 0;
+    if(isset($dog_info['kastriran'])) $kastriran = $dog_info['kastriran'];
+    else $kastriran = 0;
+    if(isset($dog_info['slaganje'])) $slaganje = $dog_info['slaganje'];
+    else $slaganje = 0;
+    if(isset($dog_info['socijaliziran'])) $socijaliziran = $dog_info['socijaliziran'];
+    else $socijaliziran = 0;
+    if(isset($dog_info['plah'])) $plah = $dog_info['plah'];
+    else $plah = 0;
+    if(isset($dog_info['aktivniji'])) $aktivniji = $dog_info['aktivniji'];
+    else $aktivniji = 0;
+    if(isset($dog_info['manje-aktivni'])) $manje_aktivni = $dog_info['manje-aktivni'];
+    else $manje_aktivni = 0;
+    if(isset($dog_info['paragraf-1'])) $opis = htmlentities($dog_info['paragraf-1'],ENT_QUOTES,"UTF-8");
+    else $opis = '';
+    $lang = 1;
+
+    $dog_name=htmlentities($dog_info['article_title'],ENT_QUOTES,"UTF-8");
+    $dog_breed=htmlentities($dog_info['pasmina'],ENT_QUOTES,"UTF-8");
+    $dog_size=htmlentities($dog_info['velicina'],ENT_QUOTES,"UTF-8");
+
+    $animal_url = parseForSEO($dog_name).'%';
+    $url = parseForSEO($dog_name);
+    $stmt = $conn->prepare("SELECT * FROM `cats` WHERE `animal_link` LIKE ? AND `deleted` = 0 ORDER BY `animal_link` DESC LIMIT 1");
+    $stmt->bind_param("s", $animal_url);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $stmt->free_result();
+    $row = $result->fetch_assoc();
+    if(!empty($row)) $url = parseForSEO($dog_name.'1');
+
+    $stmt = $conn->prepare("INSERT INTO `dogs` (`name`, `spol`, `dob`, `cijepljen`, `cipiran`, `kastriran`, `slaganje`, `socijaliziran`, `plah`, `aktivniji`, `manje_aktivni`, `opis`, `animal_link`, `pasmina`, `velicina`, `active`, `deleted`, `view_count`, `date_created`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0,0,0,NOW())");
+    if(!$stmt->bind_param("sssiiiiiiiissss", $dog_name, $spol, $dob, $cijepljen, $cipiran, $kastriran, $slaganje, $socijaliziran, $plah, $aktivniji, $manje_aktivni, $opis, $url, $dog_breed, $dog_size)) $stmt->error;
+    $stmt->execute();
+    $dog_id = $conn->insert_id;
+
+    if($dog_photo['name'][0] != ''){
+        for($i = 0; $i < count($dog_photo['name']); $i++){
+
+            $original_image_path = WEB_ROOT."images/animals/original/".$dog_id."-".$dog_photo['name'][$i];
+            $file = $dog_photo['name'][$i];
+            $tmp_file = $dog_photo['tmp_name'][$i];
+            $img_name = pathinfo($file, PATHINFO_FILENAME);
+            move_uploaded_file($tmp_file, $original_image_path);
+            resize_image($original_image_path, $original_image_path, 350, 260, ZEBRA_IMAGE_BOXED);
+
+            
+
+            if($i == $answer){ 
+                $front = 1;
+                $frontImage = $dog_id.'-'.$img_name.'.webp';
+                $webp_image_path = WEB_ROOT."images/animals/".$frontImage;
+                resize_image($original_image_path, $webp_image_path, 830, 475, ZEBRA_IMAGE_BOXED);
+                $sql_img = $frontImage;
+            } else {
+                $thumb_path = WEB_ROOT."images/animals/thumbs/".$dog_id."-".$dog_photo['name'][$i];
+                resize_image($original_image_path, $thumb_path, 350, 260, ZEBRA_IMAGE_BOXED);
+                $front = 0;
+                $sql_img = $dog_id."-".$dog_photo['name'][$i];
+            }
+
+            // baza            
+            $stmt = $conn->prepare("INSERT INTO `cat_imgs` (`cat_id`, `img`, `front`) VALUES (?,?,?)");
+            $stmt->bind_param("isi", $dog_id, $sql_img, $front);
+            $stmt->execute();
+            
+        }
+        return true;
+    }
+}
+
+function selectDog($id){
+    global $conn;
+
+    $data = [];
+
+    $stmt = $conn->prepare("SELECT * FROM `dogs` WHERE `id` = ? AND `deleted` = 0");
+    $stmt->bind_param("i",$id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if($result->num_rows > 0){
+        while($row = $result->fetch_assoc()) $data = $row;
+    } else return false;
+
+    $stmt = $conn->prepare("SELECT * FROM `dog_imgs` WHERE `dog_id` = ?");
+    $stmt->bind_param("i",$id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $stmt->free_result();
+    $i = 0;
+    if($result->num_rows > 0){
+        while($row = $result->fetch_assoc()){ 
+            if($row['front'] == 1) $data['imgs'][$i] = WWW_ROOT."images/animals/".$row['img'];
+            else $data['imgs'][$i] = WWW_ROOT."images/animals/thumbs/".$row['img'];
+            $i++;
+        }
+    } else $data['imgs'] = '';
+
+    return $data;
+}
+
+function selectCat($id){
+    global $conn;
+
+    $data = [];
+
+    $stmt = $conn->prepare("SELECT * FROM `cats` WHERE `id` = ? AND `deleted` = 0");
+    $stmt->bind_param("i",$id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if($result->num_rows > 0){
+        while($row = $result->fetch_assoc()) $data = $row;
+    } else return false;
+
+    $stmt = $conn->prepare("SELECT * FROM `cat_imgs` WHERE `cat_id` = ?");
+    $stmt->bind_param("i",$id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $stmt->free_result();
+    $i = 0;
+    if($result->num_rows > 0){
+        while($row = $result->fetch_assoc()){ 
+            if($row['front'] == 1) $data['imgs'][$i] = WWW_ROOT."images/animals/".$row['img'];
+            else $data['imgs'][$i] = WWW_ROOT."images/animals/thumbs/".$row['img'];
+            $i++;
+        }
+    } else $data['imgs'] = '';
+
+    return $data;
+}
+
+function updateDog($dog_info, $dog_photo){
+    global $conn;
+
+    if(isset($dog_info['spol'][0])) $spol = $dog_info['spol'][0];
+    if(isset($dog_info['dob'][0])) $dob = $dog_info['dob'][0];
+    if(isset($dog_info['cijepljen'])) $cijepljen = $dog_info['cijepljen'];
+    else $cijepljen = 0;
+    if(isset($dog_info['cipiran'])) $cipiran = $dog_info['cipiran'];
+    else $cipiran = 0;
+    if(isset($dog_info['kastriran'])) $kastriran = $dog_info['kastriran'];
+    else $kastriran = 0;
+    if(isset($dog_info['slaganje'])) $slaganje = $dog_info['slaganje'];
+    else $slaganje = 0;
+    if(isset($dog_info['socijaliziran'])) $socijaliziran = $dog_info['socijaliziran'];
+    else $socijaliziran = 0;
+    if(isset($dog_info['plah'])) $plah = $dog_info['plah'];
+    else $plah = 0;
+    if(isset($dog_info['aktivniji'])) $aktivniji = $dog_info['aktivniji'];
+    else $aktivniji = 0;
+    if(isset($dog_info['manje-aktivni'])) $manje_aktivni = $dog_info['manje-aktivni'];
+    else $manje_aktivni = 0;
+    if(isset($dog_info['paragraf-1'])) $opis = htmlentities($dog_info['paragraf-1'],ENT_QUOTES,"UTF-8");
+    else $opis = '';
+
+    $lang = 1;
+
+    $dog_name = htmlentities($dog_info['article_title'],ENT_QUOTES,"UTF-8");
+    $dog_breed=htmlentities($dog_info['pasmina'],ENT_QUOTES,"UTF-8");
+    $dog_size=htmlentities($dog_info['velicina'],ENT_QUOTES,"UTF-8");
+    $dog_id = $dog_info['id'];
+
+    $dogData = [];
+    $stmt = $conn->prepare("SELECT * FROM `dogs` WHERE `id` = ? ");
+    $stmt->bind_param("i", $dog_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $stmt->free_result();
+    if($result->num_rows > 0){
+        while($row = $result->fetch_assoc()){
+            $dogData = $row;
+        }
+    }
+    $stmt = $conn->prepare("SELECT * FROM `dog_imgs` WHERE `dog_id` = ? ORDER BY `id` ASC");
+    $stmt->bind_param("i", $dog_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $stmt->free_result();
+    if($result->num_rows > 0){
+        $x = 0;
+        while($row = $result->fetch_assoc()){
+            $dogData['imgs'][$x] = $row;
+            $x++;
+        }
+    }
+    
+
+    /* uploadaju se nove slike */
+    if($dog_photo['name'][0] !== ''){
+        // Obriši staru sliku
+        foreach($dogData['imgs'] as $delete_img){
+            if(file_exists(WEB_ROOT.'images/animals/'.$delete_img['img'])) unlink(WEB_ROOT.'images/animals/'.$delete_img['img']);
+            if(file_exists(WEB_ROOT.'images/animals/original/'.$delete_img['img'])) unlink(WEB_ROOT.'images/animals/original/'.$delete_img['img']);
+            if(file_exists(WEB_ROOT.'images/animals/thumbs/'.$delete_img['img'])) unlink(WEB_ROOT.'images/animals/thumbs/'.$delete_img['img']);
+
+            $change_front_name = str_replace('.webp','',$delete_img['img']);
+            /* traženje ekstenzije */
+            if(file_exists(WEB_ROOT.'images/animals/original/'.$change_front_name.'.png')) $full_change_front_name = $change_front_name.'.png';
+            if(file_exists(WEB_ROOT.'images/animals/original/'.$change_front_name.'.jpg')) $full_change_front_name = $change_front_name.'.jpg';
+            if(file_exists(WEB_ROOT.'images/animals/original/'.$change_front_name.'.jpeg')) $full_change_front_name = $change_front_name.'.jpeg';
+            if(file_exists(WEB_ROOT.'images/animals/original/'.$change_front_name.'.gif')) $full_change_front_name = $change_front_name.'.gif';
+            if(file_exists(WEB_ROOT.'images/animals/original/'.$change_front_name.'.webp')) $full_change_front_name = $change_front_name.'.webp';
+            if(file_exists(WEB_ROOT.'images/animals/original/'.$full_change_front_name)) unlink(WEB_ROOT.'images/animals/original/'.$full_change_front_name);
+        }
+
+        $stmt = $conn->prepare("DELETE FROM `dog_imgs` WHERE `dog_id` = ?");
+        $stmt->bind_param("i", $dog_id);
+        $stmt->execute();
+        $stmt->free_result();
+
+        if($dog_info['answer'] == '') $answer = 0;
+        else $answer = (int) $dog_info['answer'];
+
+        for($i = 0; $i < count($dog_photo['name']); $i++){
+
+            if($answer == $i){
+                $original_image_path = WEB_ROOT."images/animals/original/".$dog_id.'-'.$dog_photo['name'][$i];
+                $file = $dog_photo['name'][$i];
+                $tmp_file = $dog_photo['tmp_name'][$i];
+                $img_name = pathinfo($file, PATHINFO_FILENAME);
+                move_uploaded_file($tmp_file, $original_image_path);
+        
+                $frontImage = $dog_id.'-'.$img_name.'.webp';
+                $webp_image_path = WEB_ROOT."images/animals/".$frontImage;
+        
+                resize_image($original_image_path, $webp_image_path, 830, 475, ZEBRA_IMAGE_BOXED);
+            
+                $stmt = $conn->prepare("INSERT INTO `dog_imgs` (dog_id, img, front) VALUES (?,?,1)");
+                $stmt->bind_param("is", $dog_id, $frontImage);
+                $stmt->execute();
+            } else {
+                $original_image_path = WEB_ROOT."images/animals/original/".$dog_id.'-'.$dog_photo['name'][$i];            
+                $file = $dog_photo['name'][$i];
+                $tmp_file = $dog_photo['tmp_name'][$i];
+                $img_name = pathinfo($file, PATHINFO_FILENAME);
+                move_uploaded_file($tmp_file, $original_image_path);
+                
+                $thumb_path = WEB_ROOT."images/animals/thumbs/".$dog_id."-".$dog_photo['name'][$i];
+                resize_image($original_image_path, $thumb_path, 350, 260, ZEBRA_IMAGE_BOXED);
+
+                $uploadimg = $dog_id.'-'.$dog_photo['name'][$i];
+
+                $stmt = $conn->prepare("INSERT INTO `dog_imgs` (dog_id, img, front) VALUES (?,?,0)");
+                $stmt->bind_param("is", $dog_id, $uploadimg);
+                $stmt->execute();
+            }
+
+            
+        }
+    } elseif($dog_info['answer'] != ''){
+        $answer = (int) $dog_info['answer'];
+        $y = 0;
+        
+        foreach($dogData['imgs'] as $deleteimages){
+            if($deleteimages['front'] == 1){ 
+                $change_front_name = str_replace('.webp','',$deleteimages['img']);
+                /* traženje ekstenzije */
+                if(file_exists(WEB_ROOT.'images/animals/original/'.$change_front_name.'.png')) $full_change_front_name = $change_front_name.'.png';
+                if(file_exists(WEB_ROOT.'images/animals/original/'.$change_front_name.'.jpg')) $full_change_front_name = $change_front_name.'.jpg';
+                if(file_exists(WEB_ROOT.'images/animals/original/'.$change_front_name.'.jpeg')) $full_change_front_name = $change_front_name.'.jpeg';
+                if(file_exists(WEB_ROOT.'images/animals/original/'.$change_front_name.'.gif')) $full_change_front_name = $change_front_name.'.gif';
+                if(file_exists(WEB_ROOT.'images/animals/original/'.$change_front_name.'.webp')) $full_change_front_name = $change_front_name.'.webp';
+                /* updateanje baze da front nije više front */
+                $stmt = $conn->prepare("UPDATE `dog_imgs` SET `img` = ?, `front` = 0 WHERE `dog_id` = ? AND `front` = 1");
+                $stmt->bind_param("si", $full_change_front_name, $dog_id);
+                $stmt->execute();
+                $stmt->free_result();
+
+                /* brisanje stare front slike */
+                if(file_exists(WEB_ROOT.'images/animals/'.$deleteimages['img'])){
+                    $thumb_path = WEB_ROOT."images/animals/thumbs/".$full_change_front_name;
+                    resize_image(WEB_ROOT.'images/animals/'.$deleteimages['img'], $thumb_path, 350, 260, ZEBRA_IMAGE_BOXED); 
+                    unlink(WEB_ROOT.'images/animals/'.$deleteimages['img']);
+                    break;
+                }
+            }
+        }
+        foreach($dogData['imgs'] as $images){
+            if($y == $answer){
+                $img_id = $images['id'];
+                $original_image_path = WEB_ROOT."images/animals/original/".$images['img'];
+                $img_name = pathinfo($images['img'], PATHINFO_FILENAME);
+
+                unlink(WEB_ROOT.'images/animals/thumbs/'.$images['img']);
+
+                $frontImage = $img_name.'.webp';
+                $webp_image_path = WEB_ROOT."images/animals/".$frontImage;
+        
+                resize_image($original_image_path, $webp_image_path, 830, 475, ZEBRA_IMAGE_BOXED);
+            
+                $stmt = $conn->prepare("UPDATE `dog_imgs` SET `front` = 1, `img` = ? WHERE `id` = ?");
+                $stmt->bind_param("si", $frontImage, $img_id);
+                $stmt->execute();
+                
+                break;
+            } else{
+                $y++;
+            }
+        }
+    }
+
+    $animal_url = parseForSEO($dog_name).'%';
+    $url = parseForSEO($dog_name);
+    $stmt = $conn->prepare("SELECT * FROM `dogs` WHERE `animal_link` LIKE ? AND `deleted` = 0 ORDER BY `animal_link` DESC LIMIT 1");
+    $stmt->bind_param("s", $animal_url);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $stmt->free_result();
+    $row = $result->fetch_assoc();
+    if(!empty($row)) $url = parseForSEO($dog_name.'1');
+
+    $stmt = $conn->prepare("UPDATE `dogs` SET `name` = ?, `spol` = ?, `dob` = ?, `cijepljen` = ?, `cipiran` = ?, `kastriran` = ?, `slaganje` = ?, `socijaliziran` = ?, `plah` = ?, `aktivniji` = ?, `manje_aktivni` = ?, `opis` = ?, `animal_link` = ?, `pasmina` = ?, `velicina` = ? WHERE `id` = ?");
+    if(!$stmt->bind_param("sssiiiiiiiissssi", $dog_name, $spol, $dob, $cijepljen, $cipiran, $kastriran, $slaganje, $socijaliziran, $plah, $aktivniji, $manje_aktivni, $opis, $url, $dog_breed, $dog_size, $dog_id)) $stmt->error;
+    $stmt->execute();
+    return true;
+}
+
+function updateCat($dog_info, $dog_photo){
+    global $conn;
+    var_dump($dog_info);
+    if(isset($dog_info['spol'][0])) $spol = $dog_info['spol'][0];
+    if(isset($dog_info['dob'][0])) $dob = $dog_info['dob'][0];
+    if(isset($dog_info['cijepljen'])) $cijepljen = $dog_info['cijepljen'];
+    else $cijepljen = 0;
+    if(isset($dog_info['cipiran'])) $cipiran = $dog_info['cipiran'];
+    else $cipiran = 0;
+    if(isset($dog_info['kastriran'])) $kastriran = $dog_info['kastriran'];
+    else $kastriran = 0;
+    if(isset($dog_info['slaganje'])) $slaganje = $dog_info['slaganje'];
+    else $slaganje = 0;
+    if(isset($dog_info['socijaliziran'])) $socijaliziran = $dog_info['socijaliziran'];
+    else $socijaliziran = 0;
+    if(isset($dog_info['plah'])) $plah = $dog_info['plah'];
+    else $plah = 0;
+    if(isset($dog_info['aktivniji'])) $aktivniji = $dog_info['aktivniji'];
+    else $aktivniji = 0;
+    if(isset($dog_info['manje-aktivni'])) $manje_aktivni = $dog_info['manje-aktivni'];
+    else $manje_aktivni = 0;
+    if(isset($dog_info['paragraf-1'])) $opis = htmlentities($dog_info['paragraf-1'],ENT_QUOTES,"UTF-8");
+    else $opis = '';
+
+    $lang = 1;
+
+    $dog_name = htmlentities($dog_info['article_title'],ENT_QUOTES,"UTF-8");
+    $dog_breed=htmlentities($dog_info['pasmina'],ENT_QUOTES,"UTF-8");
+    $dog_size=htmlentities($dog_info['velicina'],ENT_QUOTES,"UTF-8");
+    $dog_id = $dog_info['id'];
+
+    $dogData = [];
+    $stmt = $conn->prepare("SELECT * FROM `cats` WHERE `id` = ? ");
+    $stmt->bind_param("i", $dog_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $stmt->free_result();
+    if($result->num_rows > 0){
+        while($row = $result->fetch_assoc()){
+            $dogData = $row;
+        }
+    }
+    $stmt = $conn->prepare("SELECT * FROM `cat_imgs` WHERE `cat_id` = ? ORDER BY `id` ASC");
+    $stmt->bind_param("i", $dog_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $stmt->free_result();
+    if($result->num_rows > 0){
+        $x = 0;
+        while($row = $result->fetch_assoc()){
+            $dogData['imgs'][$x] = $row;
+            $x++;
+        }
+    }
+    
+
+    /* uploadaju se nove slike */
+    if($dog_photo['name'][0] !== ''){
+        // Obriši staru sliku
+        foreach($dogData['imgs'] as $delete_img){
+            if(file_exists(WEB_ROOT.'images/animals/'.$delete_img['img'])) unlink(WEB_ROOT.'images/animals/'.$delete_img['img']);
+            if(file_exists(WEB_ROOT.'images/animals/original/'.$delete_img['img'])) unlink(WEB_ROOT.'images/animals/original/'.$delete_img['img']);
+            if(file_exists(WEB_ROOT.'images/animals/thumbs/'.$delete_img['img'])) unlink(WEB_ROOT.'images/animals/thumbs/'.$delete_img['img']);
+
+            $change_front_name = str_replace('.webp','',$delete_img['img']);
+            /* traženje ekstenzije */
+            if(file_exists(WEB_ROOT.'images/animals/original/'.$change_front_name.'.png')) $full_change_front_name = $change_front_name.'.png';
+            if(file_exists(WEB_ROOT.'images/animals/original/'.$change_front_name.'.jpg')) $full_change_front_name = $change_front_name.'.jpg';
+            if(file_exists(WEB_ROOT.'images/animals/original/'.$change_front_name.'.jpeg')) $full_change_front_name = $change_front_name.'.jpeg';
+            if(file_exists(WEB_ROOT.'images/animals/original/'.$change_front_name.'.gif')) $full_change_front_name = $change_front_name.'.gif';
+            if(file_exists(WEB_ROOT.'images/animals/original/'.$change_front_name.'.webp')) $full_change_front_name = $change_front_name.'.webp';
+            if(file_exists(WEB_ROOT.'images/animals/original/'.$full_change_front_name)) unlink(WEB_ROOT.'images/animals/original/'.$full_change_front_name);
+        }
+
+        $stmt = $conn->prepare("DELETE FROM `dog_imgs` WHERE `dog_id` = ?");
+        $stmt->bind_param("i", $dog_id);
+        $stmt->execute();
+        $stmt->free_result();
+
+        if($dog_info['answer'] == '') $answer = 0;
+        else $answer = (int) $dog_info['answer'];
+
+        for($i = 0; $i < count($dog_photo['name']); $i++){
+
+            if($answer == $i){
+                $original_image_path = WEB_ROOT."images/animals/original/".$dog_id.'-'.$dog_photo['name'][$i];
+                $file = $dog_photo['name'][$i];
+                $tmp_file = $dog_photo['tmp_name'][$i];
+                $img_name = pathinfo($file, PATHINFO_FILENAME);
+                move_uploaded_file($tmp_file, $original_image_path);
+        
+                $frontImage = $dog_id.'-'.$img_name.'.webp';
+                $webp_image_path = WEB_ROOT."images/animals/".$frontImage;
+        
+                resize_image($original_image_path, $webp_image_path, 830, 475, ZEBRA_IMAGE_BOXED);
+            
+                $stmt = $conn->prepare("INSERT INTO `dog_imgs` (dog_id, img, front) VALUES (?,?,1)");
+                $stmt->bind_param("is", $dog_id, $frontImage);
+                $stmt->execute();
+            } else {
+                $original_image_path = WEB_ROOT."images/animals/original/".$dog_id.'-'.$dog_photo['name'][$i];            
+                $file = $dog_photo['name'][$i];
+                $tmp_file = $dog_photo['tmp_name'][$i];
+                $img_name = pathinfo($file, PATHINFO_FILENAME);
+                move_uploaded_file($tmp_file, $original_image_path);
+                
+                $thumb_path = WEB_ROOT."images/animals/thumbs/".$dog_id."-".$dog_photo['name'][$i];
+                resize_image($original_image_path, $thumb_path, 350, 260, ZEBRA_IMAGE_BOXED);
+
+                $uploadimg = $dog_id.'-'.$dog_photo['name'][$i];
+
+                $stmt = $conn->prepare("INSERT INTO `dog_imgs` (dog_id, img, front) VALUES (?,?,0)");
+                $stmt->bind_param("is", $dog_id, $uploadimg);
+                $stmt->execute();
+            }
+
+            
+        }
+    } elseif($dog_info['answer'] != ''){
+        $answer = (int) $dog_info['answer'];
+        $y = 0;
+        
+        foreach($dogData['imgs'] as $deleteimages){
+            if($deleteimages['front'] == 1){ 
+                $change_front_name = str_replace('.webp','',$deleteimages['img']);
+                /* traženje ekstenzije */
+                if(file_exists(WEB_ROOT.'images/animals/original/'.$change_front_name.'.png')) $full_change_front_name = $change_front_name.'.png';
+                if(file_exists(WEB_ROOT.'images/animals/original/'.$change_front_name.'.jpg')) $full_change_front_name = $change_front_name.'.jpg';
+                if(file_exists(WEB_ROOT.'images/animals/original/'.$change_front_name.'.jpeg')) $full_change_front_name = $change_front_name.'.jpeg';
+                if(file_exists(WEB_ROOT.'images/animals/original/'.$change_front_name.'.gif')) $full_change_front_name = $change_front_name.'.gif';
+                if(file_exists(WEB_ROOT.'images/animals/original/'.$change_front_name.'.webp')) $full_change_front_name = $change_front_name.'.webp';
+                /* updateanje baze da front nije više front */
+                $stmt = $conn->prepare("UPDATE `dog_imgs` SET `img` = ?, `front` = 0 WHERE `dog_id` = ? AND `front` = 1");
+                $stmt->bind_param("si", $full_change_front_name, $dog_id);
+                $stmt->execute();
+                $stmt->free_result();
+
+                /* brisanje stare front slike */
+                if(file_exists(WEB_ROOT.'images/animals/'.$deleteimages['img'])){
+                    $thumb_path = WEB_ROOT."images/animals/thumbs/".$full_change_front_name;
+                    resize_image(WEB_ROOT.'images/animals/'.$deleteimages['img'], $thumb_path, 350, 260, ZEBRA_IMAGE_BOXED); 
+                    unlink(WEB_ROOT.'images/animals/'.$deleteimages['img']);
+                    break;
+                }
+            }
+        }
+        foreach($dogData['imgs'] as $images){
+            if($y == $answer){
+                $img_id = $images['id'];
+                $original_image_path = WEB_ROOT."images/animals/original/".$images['img'];
+                $img_name = pathinfo($images['img'], PATHINFO_FILENAME);
+
+                unlink(WEB_ROOT.'images/animals/thumbs/'.$images['img']);
+                
+                $frontImage = $img_name.'.webp';
+                $webp_image_path = WEB_ROOT."images/animals/".$frontImage;
+        
+                resize_image($original_image_path, $webp_image_path, 830, 475, ZEBRA_IMAGE_BOXED);
+            
+                $stmt = $conn->prepare("UPDATE `dog_imgs` SET `front` = 1, `img` = ? WHERE `id` = ?");
+                $stmt->bind_param("si", $frontImage, $img_id);
+                $stmt->execute();
+                
+                break;
+            } else{
+                $y++;
+            }
+        }
+    }
+
+    $animal_url = parseForSEO($dog_name).'%';
+    $url = parseForSEO($dog_name);
+    $stmt = $conn->prepare("SELECT * FROM `cats` WHERE `animal_link` LIKE ? AND `deleted` = 0 ORDER BY `animal_link` DESC LIMIT 1");
+    $stmt->bind_param("s", $animal_url);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $stmt->free_result();
+    $row = $result->fetch_assoc();
+    if(!empty($row)) $url = parseForSEO($dog_name.'1');
+
+    $stmt = $conn->prepare("UPDATE `dogs` SET `name` = ?, `spol` = ?, `dob` = ?, `cijepljen` = ?, `cipiran` = ?, `kastriran` = ?, `slaganje` = ?, `socijaliziran` = ?, `plah` = ?, `aktivniji` = ?, `manje_aktivni` = ?, `opis` = ?, `animal_link` = ?, `pasmina` = ?, `velicina` = ? WHERE `id` = ?");
+    if(!$stmt->bind_param("sssiiiiiiiissssi", $dog_name, $spol, $dob, $cijepljen, $cipiran, $kastriran, $slaganje, $socijaliziran, $plah, $aktivniji, $manje_aktivni, $opis, $url, $dog_breed, $dog_size, $dog_id)) $stmt->error;
+    $stmt->execute();
+    return true;
+}
+
+function deleteDog($dog_id){
+    global $conn;
+
+    $delete_imgs = [];
+    $id = (int)mysqli_real_escape_string($conn, trim($dog_id));
+    $stmt = $conn->prepare("SELECT * FROM `dog_imgs` WHERE `dog_id` = ?");
+    $stmt->bind_param('i', $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $stmt->free_result();
+    if($result->num_rows > 0){
+        while($row = $result->fetch_assoc()){
+            $delete_imgs[] = $row;
+        }
+    }
+
+    foreach($delete_imgs as $img){
+        if($img['front'] == 1){
+            $change_front_name = str_replace('.webp','',$img['img']);
+            /* traženje ekstenzije */
+            if(file_exists(WEB_ROOT.'images/animals/original/'.$change_front_name.'.png')) $full_change_front_name = $change_front_name.'.png';
+            if(file_exists(WEB_ROOT.'images/animals/original/'.$change_front_name.'.jpg')) $full_change_front_name = $change_front_name.'.jpg';
+            if(file_exists(WEB_ROOT.'images/animals/original/'.$change_front_name.'.jpeg')) $full_change_front_name = $change_front_name.'.jpeg';
+            if(file_exists(WEB_ROOT.'images/animals/original/'.$change_front_name.'.gif')) $full_change_front_name = $change_front_name.'.gif';
+            if(file_exists(WEB_ROOT.'images/articles/original/'.$change_front_name.'.webp')) $full_change_front_name = $change_front_name.'.webp';
+
+            if(file_exists(WEB_ROOT.'images/animals/original/'.$full_change_front_name)) unlink(WEB_ROOT.'images/animals/original/'.$full_change_front_name);
+            if(file_exists(WEB_ROOT.'images/animals/'.$img['img'])) unlink(WEB_ROOT.'images/animals/'.$img['img']);
+
+        } else {
+            if(file_exists(WEB_ROOT.'images/animals/original/'.$img['img'])) unlink(WEB_ROOT.'images/animals/original/'.$img['img']);
+            if(file_exists(WEB_ROOT.'images/animals/thumbs/'.$img['img'])) unlink(WEB_ROOT.'images/animals/thumbs/'.$img['img']);
+        }
+    }
+
+    /* brisanje slika iz baze */
+    $stmt = $conn->prepare("DELETE FROM `dog_imgs` WHERE `dog_id` = ?");
+    $stmt->bind_param('i', $id);
+    $stmt->execute();
+
+    $stmt = $conn->prepare("UPDATE `dogs` SET `deleted` = 1 WHERE `id` = ?");
+    $stmt->bind_param('i', $id);
+    $stmt->execute();
+}
+
+function deleteCat($dog_id){
+    global $conn;
+
+    $delete_imgs = [];
+    $id = (int)mysqli_real_escape_string($conn, trim($dog_id));
+    $stmt = $conn->prepare("SELECT * FROM `cat_imgs` WHERE `cat_id` = ?");
+    $stmt->bind_param('i', $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $stmt->free_result();
+    if($result->num_rows > 0){
+        while($row = $result->fetch_assoc()){
+            $delete_imgs[] = $row;
+        }
+    }
+
+    /* brisanje slika u folderu images/articles */
+    foreach($delete_imgs as $img){
+        if($img['front'] == 1){
+            $change_front_name = str_replace('.webp','',$img['img']);
+            /* traženje ekstenzije */
+            if(file_exists(WEB_ROOT.'images/animals/original/'.$change_front_name.'.png')) $full_change_front_name = $change_front_name.'.png';
+            if(file_exists(WEB_ROOT.'images/animals/original/'.$change_front_name.'.jpg')) $full_change_front_name = $change_front_name.'.jpg';
+            if(file_exists(WEB_ROOT.'images/animals/original/'.$change_front_name.'.jpeg')) $full_change_front_name = $change_front_name.'.jpeg';
+            if(file_exists(WEB_ROOT.'images/animals/original/'.$change_front_name.'.gif')) $full_change_front_name = $change_front_name.'.gif';
+            if(file_exists(WEB_ROOT.'images/articles/original/'.$change_front_name.'.webp')) $full_change_front_name = $change_front_name.'.webp';
+
+            if(file_exists(WEB_ROOT.'images/animals/original/'.$full_change_front_name)) unlink(WEB_ROOT.'images/animals/original/'.$full_change_front_name);
+            if(file_exists(WEB_ROOT.'images/animals/'.$img['img'])) unlink(WEB_ROOT.'images/animals/'.$img['img']);
+
+        } else {
+            if(file_exists(WEB_ROOT.'images/animals/original/'.$img['img'])) unlink(WEB_ROOT.'images/animals/original/'.$img['img']);
+            if(file_exists(WEB_ROOT.'images/animals/thumbs/'.$img['img'])) unlink(WEB_ROOT.'images/animals/thumbs/'.$img['img']);
+        }
+    }
+
+    /* brisanje slika iz baze */
+    $stmt = $conn->prepare("DELETE FROM `cat_imgs` WHERE `cat_id` = ?");
+    $stmt->bind_param('i', $id);
+    $stmt->execute();
+
+    $stmt = $conn->prepare("UPDATE `cats` SET `deleted` = 1 WHERE `id` = ?");
+    $stmt->bind_param('i', $id);
+    $stmt->execute();
+}
+
+function selectAboutUs(){
+    global $conn;
+
+    $content = [];
+
+    $stmt = $conn->prepare("SELECT * FROM `aboutus` WHERE `id` = 1");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $stmt->free_result();
+    while($row = $result->fetch_assoc()){
+        $content = $row;
+    }
+
+    $content['title1'] = html_entity_decode($content['title1'], ENT_QUOTES, "UTF-8");
+    $content['title2'] = html_entity_decode($content['title2'], ENT_QUOTES, "UTF-8");
+    $content['content1'] = html_entity_decode($content['content1'], ENT_QUOTES, "UTF-8");
+    $content['content2'] = html_entity_decode($content['content2'], ENT_QUOTES, "UTF-8");
+    if($content['img1'] != '0') $content['img1'] = WWW_ROOT."images/aboutus/".$content['img1'];
+    if($content['img2'] != '0') $content['img2'] = WWW_ROOT."images/aboutus/".$content['img2'];
+
+    return $content;
+}
+
+function updateAboutUs($content, $images){
+    global $conn;
+
+    $title1 = htmlentities($content['article_title'],ENT_QUOTES,"UTF-8");
+    $title2 = htmlentities($content['article_title2'],ENT_QUOTES,"UTF-8");
+    $content1 = htmlentities($content['sadrzaj1'],ENT_QUOTES,"UTF-8");
+    $content2 = htmlentities($content['sadrzaj2'],ENT_QUOTES,"UTF-8");
+
+    if($images['name'][0] !== ''){
+        $aboutusData = [];
+        $stmt = $conn->prepare("SELECT * FROM `aboutus` WHERE `id` = 1");
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $stmt->free_result();
+        while($row = $result->fetch_assoc()){
+            $aboutusData = $row;
+        }
+        // Obriši staru sliku
+        if(file_exists(WEB_ROOT.'images/aboutus/'.$aboutusData['img1'])) unlink(WEB_ROOT.'images/aboutus/'.$aboutusData['img1']);
+        if(file_exists(WEB_ROOT.'images/aboutus/'.$aboutusData['img2'])) unlink(WEB_ROOT.'images/aboutus/'.$aboutusData['img2']);
+
+        for($i = 0; $i < count($images['name']); $i++){
+            $original_image_path = WEB_ROOT."images/aboutus/".$images['name'][$i];            
+            $file = $images['name'][$i];
+            $tmp_file = $images['tmp_name'][$i];
+            $img_name = pathinfo($file, PATHINFO_FILENAME);
+            move_uploaded_file($tmp_file, $original_image_path);
+            resize_image($original_image_path, $original_image_path, 540, 390, ZEBRA_IMAGE_BOXED);
+            $images_names[] = $images['name'][$i];
+        }
+
+        if(!isset($images['name'][1])) $images_names[1] = '0';
+
+        $stmt = $conn->prepare("UPDATE `aboutus` SET `title1` = ?, `title2` = ?, `content1` = ?, `content2` = ?, `img1` = ?, `img2` = ? WHERE `id` = 1");
+        $stmt->bind_param("ssssss",$title1, $title2, $content1, $content2, $images_names[0], $images_names[1]);
+        $stmt->execute();
+    } else {
+        $stmt = $conn->prepare("UPDATE `aboutus` SET `title1` = ?, `title2` = ?, `content1` = ?, `content2` = ? WHERE `id` = 1");
+        $stmt->bind_param("ssss",$title1, $title2, $content1, $content2);
+        $stmt->execute();
+    }
+}
+
+function selectDonations(){
+    global $conn;
+
+    $content = [];
+
+    $stmt = $conn->prepare("SELECT * FROM `donations`");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $stmt->free_result();
+    while($row = $result->fetch_assoc()){
+        if($row['type'] == 1) $content['title'] = html_entity_decode($row['content'], ENT_QUOTES, "UTF-8");
+        if($row['type'] == 2) $content['sadrzaj'] = html_entity_decode($row['content'], ENT_QUOTES, "UTF-8");
+        if($row['type'] == 3) $content['imgs'][] = WWW_ROOT."images/donacije/predmeti/".$row['content'];
+        if($row['type'] == 4) $content['racun'] = WWW_ROOT."images/donacije/racun/".$row['content'];
+    }
+
+    return $content;
+
+}
+
+function updateDonations($content, $donations_images, $devizni_racun){
+    global $conn;
+
+    $donationData = [];
+    $donationData[0]['content'] = htmlentities($content['article_title'],ENT_QUOTES,"UTF-8");
+    $donationData[0]['type'] = 1;
+    $donationData[1]['content'] = htmlentities($content['sadrzaj1'],ENT_QUOTES,"UTF-8");
+    $donationData[1]['type'] = 2;
+
+    $stmt = $conn->prepare("UPDATE `donations` SET `content` = ? WHERE `type` = ?");
+    foreach($donationData as $data){
+        $stmt->bind_param("ss", $data['content'], $data['type']);
+        $stmt->execute();
+    }
+    
+
+    if($donations_images['name'][0] !== ''){
+        $donationsImgs = [];
+        $stmt = $conn->prepare("SELECT * FROM `donations` WHERE `type` = 3");
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $stmt->free_result();
+        if($result->num_rows > 0){
+            while($row = $result->fetch_assoc()){
+                $donationsImgs[] = $row;
+            }
+            $stmt = $conn->prepare("DELETE FROM `donations` WHERE `type` = 3");
+            $stmt->execute();
+
+            foreach($donationsImgs as $delete) if(file_exists(WEB_ROOT.'images/donacije/predmeti/'.$delete['content'])) unlink(WEB_ROOT.'images/donacije/predmeti/'.$delete['content']);
+        }
+        
+
+        for($i = 0; $i < count($donations_images['name']); $i++){
+            $original_image_path = WEB_ROOT."images/donacije/predmeti/".$donations_images['name'][$i];            
+            $file = $donations_images['name'][$i];
+            $tmp_file = $donations_images['tmp_name'][$i];
+            $img_name = pathinfo($file, PATHINFO_FILENAME);
+            move_uploaded_file($tmp_file, $original_image_path);
+            resize_image($original_image_path, $original_image_path, 500, 500, ZEBRA_IMAGE_BOXED);
+            $images_names[] = $donations_images['name'][$i];
+        }
+
+
+        $stmt = $conn->prepare("INSERT INTO `donations` (`content`,`type`) VALUES (?,3)");
+        foreach($images_names as $name){
+            $stmt->bind_param("s",$name);
+            $stmt->execute();
+        }
+        
+    }
+
+    if($devizni_racun['name'][0] !== ''){
+        $donationsImgs = [];
+        $stmt = $conn->prepare("SELECT * FROM `donations` WHERE `type` = 4");
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $stmt->free_result();
+        if($result->num_rows > 0){
+            while($row = $result->fetch_assoc()){
+                $donationsImgs[] = $row;
+            }
+            $stmt = $conn->prepare("DELETE FROM `donations` WHERE `type` = 4");
+            $stmt->execute();
+            foreach($donationsImgs as $delete) if(file_exists(WEB_ROOT.'images/donacije/racun/'.$delete['content'])) unlink(WEB_ROOT.'images/donacije/racun/'.$delete['content']);
+        }
+        
+
+        for($i = 0; $i < count($devizni_racun['name']); $i++){
+            $original_image_path = WEB_ROOT."images/donacije/racun/".$devizni_racun['name'][$i];            
+            $file = $devizni_racun['name'][$i];
+            $tmp_file = $devizni_racun['tmp_name'][$i];
+            $img_name = pathinfo($file, PATHINFO_FILENAME);
+            move_uploaded_file($tmp_file, $original_image_path);
+            resize_image($original_image_path, $original_image_path, 540, 390, ZEBRA_IMAGE_BOXED);
+            $images_names2[] = $devizni_racun['name'][$i];
+        }
+
+
+        $stmt = $conn->prepare("INSERT INTO `donations` (`content`,`type`) VALUES (?,4)");
+        foreach($images_names2 as $name){
+            $stmt->bind_param("s",$name);
+            $stmt->execute();
+        }
+        
+    }
+}
+
+function selectKontakt(){
+    global $conn;
+
+    $content = [];
+
+    $stmt = $conn->prepare("SELECT * FROM `contact`");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $stmt->free_result();
+    while($row = $result->fetch_assoc()){
+        if($row['type'] == 1) $content['title'] = html_entity_decode($row['content'], ENT_QUOTES, "UTF-8");
+        if($row['type'] == 2) $content['lokacije'] = html_entity_decode($row['content'], ENT_QUOTES, "UTF-8");
+        if($row['type'] == 3) $content['telefon'] = html_entity_decode($row['content'], ENT_QUOTES, "UTF-8");
+        if($row['type'] == 4) $content['email'] = html_entity_decode($row['content'], ENT_QUOTES, "UTF-8");
+        if($row['type'] == 5) $content['email_form'] = html_entity_decode($row['content'], ENT_QUOTES, "UTF-8");
+        if($row['type'] == 6) $content['pass_form'] = html_entity_decode($row['content'], ENT_QUOTES, "UTF-8");
+    }
+
+    return $content;
+
+}
+
+function updateKontakt($content){
+    global $conn;
+    
+    $kontaktData = [];
+    $i = 0;
+    foreach($content as $key => $data){
+        if(strcmp($key, 'article_title') == 0){ 
+            $kontaktData[$i]['content'] = htmlentities($data, ENT_QUOTES, "UTF-8");
+            $kontaktData[$i]['type'] = 1;
+        } elseif(strcmp($key, 'lokacije') == 0){ 
+            $kontaktData[$i]['content'] = htmlentities($data, ENT_QUOTES, "UTF-8");
+            $kontaktData[$i]['type'] = 2;
+        } elseif(strcmp($key, 'telefon') == 0){ 
+            $kontaktData[$i]['content'] = htmlentities($data, ENT_QUOTES, "UTF-8");
+            $kontaktData[$i]['type'] = 3;
+        } elseif(strcmp($key, 'email') == 0){ 
+            $kontaktData[$i]['content'] = htmlentities($data, ENT_QUOTES, "UTF-8");
+            $kontaktData[$i]['type'] = 4;
+        } elseif(strcmp($key, 'email-form') == 0){ 
+            $kontaktData[$i]['content'] = htmlentities($data, ENT_QUOTES, "UTF-8");
+            $kontaktData[$i]['type'] = 5;
+        } elseif(strcmp($key, 'pass-form') == 0){ 
+            $kontaktData[$i]['content'] = htmlentities($data, ENT_QUOTES, "UTF-8");
+            $kontaktData[$i]['type'] = 6;
+        }
+        $i++;
+    }
+
+    $stmt = $conn->prepare("UPDATE `contact` SET `content` = ? WHERE `type` = ?");
+    foreach($kontaktData as $data){
+        $stmt->bind_param("ss", $data['content'], $data['type']);
+        $stmt->execute();
+    }
+}
+
+function selectRotatorSlide($slide_id){
+    global $conn;
+
+    $data = [];
+    $sql="SELECT * FROM `glavni_rotator` AS a LEFT JOIN `glavni_rotator_img` AS b ON a.slide_id = b.slide_id WHERE a.slide_id = '".$slide_id."' LIMIT 2";
+	$result = $conn->query($sql);
+	if($result->num_rows > 0){
+		while($row = $result->fetch_assoc()){
+			foreach($row as $key => $value) {
+			$data[$row['lang']][$key] = html_entity_decode($value, ENT_QUOTES, 'UTF-8');
+			}
+		}
+		return $data;
+	}
+	return false;
+
+}
+
+function selectRotator($lang='1'){
+	global $conn;
+
+	$stmt = $conn->prepare("SELECT *
+							FROM
+								`glavni_rotator` AS a
+								LEFT JOIN `glavni_rotator_img` AS b ON a.`slide_id` = b.`slide_id`
+							WHERE 
+								a.`lang` = ?");
+    if(!$stmt->bind_param("i", $lang)) $stmt->error;
+    $stmt->execute();
+	$result = $stmt->get_result();
+	$i = 0;
+	while($row = $result->fetch_assoc()){
+		$rotator_content[$i]['id'] = $row['id'];
+		$rotator_content[$i]['slide_id'] = $row['slide_id'];
+		$rotator_content[$i]['title'] = $row['title'];
+		$rotator_content[$i]['button'] = html_entity_decode($row['button'], ENT_QUOTES);
+		$rotator_content[$i]['content'] = $row['content'];
+		$rotator_content[$i]['img'] = $row['img'];
+		$i++;
+	}
+	return $rotator_content;
+}
+
+function selectFooter(){
+    global $conn;
+
+    $content = [];
+
+    $stmt = $conn->prepare("SELECT * FROM `footer`");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $stmt->free_result();
+    while($row = $result->fetch_assoc()){
+        $content['title'] = html_entity_decode($row['title'], ENT_QUOTES, "UTF-8");
+        $content['content'] = html_entity_decode($row['content'], ENT_QUOTES, "UTF-8");
+    }
+
+    return $content;
+}
+
+function updateFooter($content){
+    global $conn;
+
+    $title = htmlentities($content['article_title'],ENT_QUOTES,"UTF-8");
+    $sadrzaj = htmlentities($content['sadrzaj1'],ENT_QUOTES,"UTF-8");
+
+    $stmt = $conn->prepare("UPDATE `footer` SET `title` = ?, `content` = ? WHERE `id` = 1");
+    $stmt->bind_param("ss", $title, $sadrzaj);
+    $stmt->execute();
+}
+
+function selectMiddle(){
+    global $conn;
+
+    $content = [];
+
+    $stmt = $conn->prepare("SELECT * FROM `middle`");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $stmt->free_result();
+    while($row = $result->fetch_assoc()){
+        $content['title'] = html_entity_decode($row['title'], ENT_QUOTES, "UTF-8");
+        $content['content'] = html_entity_decode($row['content'], ENT_QUOTES, "UTF-8");
+        $content['link'] = urldecode($row['link']);
+        $content['img'] = WWW_ROOT.'images/'.$row['img'];
+    }
+
+    return $content;
+}
+
+function updateMiddle($content, $image){
+    global $conn;
+
+    $title = htmlentities($content['article_title'],ENT_QUOTES,"UTF-8");
+    $sadrzaj = htmlentities($content['sadrzaj1'],ENT_QUOTES,"UTF-8");
+    $link = urlencode($content['article_title2']);
+
+
+    if($image['name'][0] !== ''){
+        $middleImg = [];
+        $stmt = $conn->prepare("SELECT * FROM `middle` WHERE `id` = 1");
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $stmt->free_result();
+        if($result->num_rows > 0){
+            while($row = $result->fetch_assoc()) $middleImg = $row;
+            if(file_exists(WEB_ROOT.'images/'.$middleImg['img'])) unlink(WEB_ROOT.'images/'.$middleImg['img']);
+        }
+        
+
+        $original_image_path = WEB_ROOT."images/".$image['name'][0];            
+        $file = $image['name'][0];
+        $tmp_file = $image['tmp_name'][0];
+        $img_name = pathinfo($file, PATHINFO_FILENAME);
+        move_uploaded_file($tmp_file, $original_image_path);
+        resize_image($original_image_path, $original_image_path, 1580, 455, ZEBRA_IMAGE_CROP_CENTER);
+        $images_name = $image['name'][0];
+
+
+        $stmt = $conn->prepare("UPDATE `middle` SET `img` = ? WHERE `id` = 1 ");
+        $stmt->bind_param("s",$images_name);
+        $stmt->execute();
+    }
+
+    $stmt = $conn->prepare("UPDATE `middle` SET `title` = ?, `content` = ?, `link` = ? WHERE `id` = 1 ");
+    $stmt->bind_param("sss",$title, $sadrzaj, $link);
+    $stmt->execute();
 }
 
 ?>

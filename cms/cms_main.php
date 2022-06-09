@@ -47,12 +47,18 @@ if (isset($_GET['page']) && !empty($_GET['page'])) {$page=$_GET['page'];}
 	 </header>
 	 <div class="row no-gutters">
 	 <aside class="col-2">
-		 <a href="/hydracms"><i class="material-icons">home</i><span class="d-none d-md-inline-block">Home</span></a>
-		<ul class="w-100">
-			<li><a class="chip chip-action" href="main_sites.php"><i class="chip-icon material-icons">web</i><span class="d-none d-md-block">Uređivanje web stranice</span></a></li>
-			<li><a class="chip chip-action" href="page2.php"><i class="chip-icon material-icons">dashboard</i><span class="d-none d-md-block">Uređivanje članaka</span></a></li>
-			<li><a class="chip chip-action" href="settings.php"><i class="chip-icon material-icons">settings</i><span class="d-none d-md-block">Postavke</span></a></li>
+		 <a href="/cms"><i class="material-icons">home</i><span class="d-none d-md-inline-block">Home</span></a>
+		 <ul class="w-100">
 			<li><a class="chip chip-action" href="users.php"><i class="chip-icon material-icons">face</i><span class="d-none d-md-block">Korisnici</span></a></li>
+			<li><a class="chip chip-action" href="page2.php"><i class="chip-icon material-icons">dashboard</i><span class="d-none d-md-block">Uređivanje članaka</span></a></li>
+			<li><a class="chip chip-action" href="footer.php"><i class="chip-icon material-icons">last_page</i><span class="d-none d-md-block">Podnožije stranice</span></a></li>
+			<li><a class="chip chip-action" href="rotator.php"><i class="chip-icon material-icons">web</i><span class="d-none d-md-block">Uređivanje rotatora</span></a></li>
+			<li><a class="chip chip-action" href="middle.php"><i class="chip-icon material-icons">newspaper</i><span class="d-none d-md-block">Sredina naslovnice</span></a></li>
+			<li><a class="chip chip-action" href="aboutus.php"><i class="chip-icon material-icons">diversity_3</i><span class="d-none d-md-block">O nama</span></a></li>
+			<li><a class="chip chip-action" href="donations.php"><i class="chip-icon material-icons">volunteer_activism</i><span class="d-none d-md-block">Donacije</span></a></li>
+			<li><a class="chip chip-action" href="contact.php"><i class="chip-icon material-icons">alternate_email</i><span class="d-none d-md-block">Kontakt</span></a></li>
+			<li><a class="chip chip-action" href="dogs.php"><i class="chip-icon material-icons">pets</i><span class="d-none d-md-block">Psi</span></a></li>
+			<li><a class="chip chip-action" href="cats.php"><i class="chip-icon material-icons">pets</i><span class="d-none d-md-block">Mačke</span></a></li>
 			<li><a class="chip chip-action logout" href="index.php?logout=true"><i class="chip-icon material-icons">logout</i><span class="d-none d-md-block">Logout</span></a></li>
 		</ul>
 	 </aside>

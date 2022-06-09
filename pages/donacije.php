@@ -1,45 +1,51 @@
+<?php 
+ $donationData = selectDonations();
+?>
 <section class="donation">
     <div class="container">
         <div class="row">
             <div class="col-12">
-                <h4>Donacije</h4>
+                <h4><?=$donationData['title']?></h4>
             </div>
         </div>
         <div class="row">
             <div class="col-12">
             <p class="paragraf">
-                Budi deo nas na nasoj aukci " Humanitarna aukcija za Kovinske sapice " Doniraj hranu Uvek nam tebaju granule za sterilisane mace Tomi konzerve Medicinska hrana koju mi tesko kupujemo Mokra i suva hrana za mace koje se hrane na hranilistima. Za pse kuvamo svaki dan
-                Najcesce su nam potrebne tablete ili ampule za parazite. Posip za mace i ono najvaznije hrana.
+                <?=$donationData['sadrzaj']?>
             </p>
             </div>
         </div>
         <div class="row donation-imgs">
-            <div class="col-4 donation-img">
-                <img src="<?=WWW_ROOT?>images\donacije\maca-hrana.jpg" alt="#">
-            </div>
-            <div class="col-4 donation-img">
-                <img src="<?=WWW_ROOT?>images\donacije\pas-hrana.jpg" alt="#">
-            </div>
-            <div class="col-4 donation-img">
-                <img src="<?=WWW_ROOT?>images\donacije\maca-hrana.jpg" alt="#">
-            </div>
-            <div class="col-4 donation-img">
-                <img src="<?=WWW_ROOT?>images\donacije\pas-hrana.jpg" alt="#">
-            </div>
-            <div class="col-4 donation-img">
-                <img src="<?=WWW_ROOT?>images\donacije\maca-hrana.jpg" alt="#">
-            </div>
-            <div class="col-4 donation-img">
-                <img src="<?=WWW_ROOT?>images\donacije\pas-hrana.jpg" alt="#">
-            </div>
+            <?php
+            if(isset($donationData['imgs'])){ 
+                foreach($donationData['imgs'] as $imgs){ ?>
+                    <div class="col-4 donation-img">
+                        <img src="<?=$imgs?>" alt="#">
+                    </div>
+            <?php    }
+            }
+            ?>
         </div>
         <div class="row donation-links">
             <div class="col-sm-6 col-12 donation-link">
-                <a href="#">Donacije na devizni račun</a>
-            </div>
-            <div class="col-sm-6 col-12 donation-link">
-                <a href="#">Donacije na Paypal račun</a>
+                <a href="#" data-toggle="modal" data-target="#donationModal">Donacije na devizni račun</a>
             </div>
         </div>
     </div>
 </section>
+
+<div class="modal fade" id="donationModal" tabindex="-1" aria-labelledby="donationModalLabel" aria-hidden="true">
+  <div class="modal-dialog donation-modal">
+    <div class="modal-content">
+      <div class="modal-header donation-modal">
+        <h5 class="modal-title" id="donationModalLabel">Devizni račun</h5>
+      </div>
+      <div class="modal-body donation-modal">
+        <img src="<?=$donationData['racun']?>" alt="#">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Zatvorite</button>
+      </div>
+    </div>
+  </div>
+</div>

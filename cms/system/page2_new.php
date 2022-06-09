@@ -12,8 +12,10 @@
     define('DOING_AJAX', true);
     
     if($_SERVER['REQUEST_METHOD'] == 'POST'){
+        //var_dump($_FILES, $_POST);exit();
         if(!isset($_FILES['file']) && empty($_FILES['file'])) $_FILES['file']['name'][0] = '';
         if(isset($_POST['article_title']) && !empty($_POST['article_title']) && isset($_POST['header']) && !empty($_POST['header']) && isset($_POST['paragraf-1']) && !empty($_POST['paragraf-1'])){
+            
             uploadNewArticle($_POST, ucfirst(strtolower(sessDecode($_SESSION['user']))), $_FILES['file']);
             echo 'link_page2.php';
             die();
@@ -38,7 +40,7 @@
 ?>
 
 <div class="subheader">
-    <h2>Uređivanje stranica</h2>
+    <h2>Novi članak</h2>
 </div>
 <div class="row no-gutters">
   <div class="col-sm-6 col-md-3">

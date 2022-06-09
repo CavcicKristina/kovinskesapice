@@ -31,7 +31,7 @@ $articles = selectAllArticles();
 </div>
 <div class="row no-gutters">
   <div class="col-sm-6 col-md-3">
-    <a href="default_articles.php" class="products-card block-link">
+    <a href="default.php" class="products-card block-link">
         <div class="card text-white text-center mb-3">   
         <div class="card-body">
             <h5 class="card-title"><span class="material-icons">arrow_back_ios_new</span> Nazad</h5>
@@ -72,7 +72,7 @@ if ($articles) {
                     <button class="btn btn-light" style="color:dimgrey;">'.$blog['view_count'].'  <span class="material-icons" style="color:dimgrey;">visibility</span></button>
                   </li>
                   <li class="nav-item position-absolute" style="top:50%;right:0;z-index:1;">
-                  <input type="checkbox" class="checkbox-toggle" '.($blog['active'] === '1' ? 'checked' : '').' data-toggle="toggle" data-id="'.$blog['id'].'" data-field="active" data-page="pages_sys.php" data-size="md">
+                  <input type="checkbox" class="checkbox-toggle" '.($blog['active'] === '1' ? 'checked' : '').' data-toggle="toggle" data-id="'.$blog['id'].'" data-field="active" data-page="page2_sys.php" data-size="md">
                   </li>
                 </ul>
               </div>
@@ -104,7 +104,7 @@ echo '</div>';
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Odustani</button>
-        <a type="button" class="btn btn-primary" href="pages.php">Obriši</a>
+        <a type="button" class="btn btn-primary" href="page2.php">Obriši</a>
       </div>
     </div>
   </div>
