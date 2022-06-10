@@ -12,15 +12,17 @@ $middleData = selectMiddle();
         </div>
         <div class="news-cards">
             <div class="row">
-                <?php foreach($blogs as $blog){ ?>
-                    <div class="col-6 col-md-3">
-                        <div class="news-card">
-                            <img src="<?=$blog['front_img']?>" alt="#">
-                            <h5><?=$blog['title']?></h5>
-                            <p><?=$blog['header']?></p>
-                            <a href="<?=WWW_ROOT?>novosti/<?=$blog['article_link']?>">Pročitaj više >></a>
+                <?php if($blogs) { ?>
+                    <?php foreach($blogs as $blog){ ?>
+                        <div class="col-6 col-md-3">
+                            <div class="news-card">
+                                <img src="<?=$blog['front_img']?>" alt="#">
+                                <h5><?=$blog['title']?></h5>
+                                <p><?=$blog['header']?></p>
+                                <a href="<?=WWW_ROOT?>novosti/<?=$blog['article_link']?>">Pročitaj više >></a>
+                            </div>
                         </div>
-                    </div>
+                    <?php } ?>
                 <?php } ?>
             </div>
         </div>

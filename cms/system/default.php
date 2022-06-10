@@ -8,7 +8,7 @@ if (!getUserLogged()){
     session_destroy();
     header("Location: ".CMS_WWW_ROOT."index.php");
 }
-
+$undreadMsgs = selectAllUnreadMsgs();
 //$categories = getAllArticlesCategories();
 ?>
 <div class="subheader">
@@ -92,6 +92,19 @@ if (!getUserLogged()){
             <div class="card-body">
                 <h5 class="card-title py-4"><span class="material-icons">alternate_email</span> Kontakt</h5>
                 <p class="card-text py-3">Uredi sadržaj stranice "Kontakt"</p>    
+            </div>    
+            </div>
+        </a>
+    </div>
+    <div class="col-sm-6 col-lg-4 col-xl-3">
+        <a href="contact_msgs.php" class="products-card block-link">
+            <div class="card text-white text-center mb-3 bg-kateg">   
+            <div class="card-body">
+                <?php if($undreadMsgs){ ?>
+                    <p style="position: absolute;background-color: red;color: white;padding: 5px 12px;border-radius: 25px;right: 10px;font-weight: 800;"><?=$undreadMsgs['rows']?></p>
+                <?php } ?>
+                <h5 class="card-title py-4"><span class="material-icons">email</span> Poruke sa stranice "Kontakt"</h5>
+                <p class="card-text py-3">Pregledajte poruke sa stranice</p>    
             </div>    
             </div>
         </a>

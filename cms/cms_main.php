@@ -57,6 +57,7 @@ if (isset($_GET['page']) && !empty($_GET['page'])) {$page=$_GET['page'];}
 			<li><a class="chip chip-action" href="aboutus.php"><i class="chip-icon material-icons">diversity_3</i><span class="d-none d-md-block">O nama</span></a></li>
 			<li><a class="chip chip-action" href="donations.php"><i class="chip-icon material-icons">volunteer_activism</i><span class="d-none d-md-block">Donacije</span></a></li>
 			<li><a class="chip chip-action" href="contact.php"><i class="chip-icon material-icons">alternate_email</i><span class="d-none d-md-block">Kontakt</span></a></li>
+			<li><a class="chip chip-action" href="contact_msgs.php"><i class="chip-icon material-icons">email</i><span class="d-none d-md-block">Poruke</span></a></li>
 			<li><a class="chip chip-action" href="dogs.php"><i class="chip-icon material-icons">pets</i><span class="d-none d-md-block">Psi</span></a></li>
 			<li><a class="chip chip-action" href="cats.php"><i class="chip-icon material-icons">pets</i><span class="d-none d-md-block">Mačke</span></a></li>
 			<li><a class="chip chip-action logout" href="index.php?logout=true"><i class="chip-icon material-icons">logout</i><span class="d-none d-md-block">Logout</span></a></li>

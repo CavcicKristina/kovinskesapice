@@ -2005,4 +2005,54 @@ function updateMiddle($content, $image){
     $stmt->execute();
 }
 
+function selectAllContactMsgs(){
+    global $conn;
+
+    $content = [];
+
+    $stmt = $conn->prepare("UPDATE `contact_msgs` SET `read` = 1 WHERE `read` = 0");
+    $stmt->execute();
+    $stmt->free_result();
+
+    $stmt = $conn->prepare("SELECT * FROM `contact_msgs`");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $stmt->free_result();
+    if($result->num_rows > 0){
+        while($row = $result->fetch_assoc()){
+            $row['date_created'] = date("d.m.Y h:i", strtotime($row['date_created']));
+            $content[] = $row;
+        }
+    } else return false;
+    
+    return $content;
+}
+
+function selectAllUnreadMsgs(){
+    global $conn;
+
+    $content = [];
+
+    $stmt = $conn->prepare("SELECT COUNT(*) as `rows` FROM `contact_msgs` WHERE `read` = 0");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $stmt->free_result();
+    if($result->num_rows > 0){
+        while($row = $result->fetch_assoc()){
+            $content = $row;
+        }
+    } else return false;
+    
+    return $content;
+}
+
+function deleteContactMsg($id){
+    global $conn;
+
+    $stmt = $conn->prepare("DELETE FROM `contact_msgs` WHERE `id` = ?");
+    $stmt->bind_param("i", $id);
+    if($stmt->execute()) return true;
+    return false;
+}
+
 ?>

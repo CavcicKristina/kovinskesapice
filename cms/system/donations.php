@@ -95,7 +95,7 @@
             <div class="custom-file">
                 <input type="file" class="custom-file-input" id="file1" name="file1[]" multiple>
                 <input type="hidden" name="answer" id="answer" />
-                <label class="custom-file-label" for="file1">Fotografija deviznog računa za uplatu</label>                            
+                <label class="custom-file-label" for="file1">Fotografija računa za uplatu</label>                            
             </div>
         </div>
         <div class="imagePreview1">
